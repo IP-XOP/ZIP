@@ -28,6 +28,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Cannot change directory",
 	//[7]
 	"Problem while extracting",
+	//[8]
+	"Problem while zipping",
 	}
 };
 
@@ -67,6 +69,8 @@ resource 'XOPF' (1100) {
 resource 'XOPC' (1100) {
 	{
 		"ZIPfile",								// Name of operation.
+		XOPOp+UtilOP+compilableOp,			// Operation's category.
+		"ZIPzipfiles",
 		XOPOp+UtilOP+compilableOp,			// Operation's category.
 	}
 };
