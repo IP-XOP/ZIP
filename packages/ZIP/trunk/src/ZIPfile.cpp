@@ -446,6 +446,8 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	int err = 0, err2 = 0;
 	char dirname[MAX_PATH_LEN+1]; // Output full path 
 	char temppath[MAX_PATH_LEN+1];
+	char* passwdFmIgor = NULL;
+	
 	char zipfilename[MAX_PATH_LEN+1];
     const char *password=NULL;
     char filename_try[MAX_PATH_LEN+16] = "";
@@ -464,6 +466,32 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	if (p->OFlagEncountered) {
 		opt_overwrite = 1;
 	}
+	
+	if (p->XFlagEncountered) {
+		opt_do_extract=1;
+	}
+
+	if (p->EFlagEncountered) {
+		opt_do_extract = opt_do_extract_withoutpath = 1;
+	}
+
+	if (p->PASSFlagEncountered) {
+		// Parameter: p->PFlag_passwd (test for NULL handle before using)
+		if(!p->PASSFlag_passwd){
+			err = NULL_STRING_HANDLE;
+			goto done;
+		}
+		passwdFmIgor = (char*)malloc(sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		if(passwdFmIgor == NULL){
+			err = NOMEM;
+			goto done;
+		}
+		memset(passwdFmIgor,0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, GetHandleSize(p->PASSFlag_passwd)))
+			goto done;
+		password = passwdFmIgor;
+	}
+	
 	
 	// Main parameters.
 	
@@ -495,9 +523,6 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 		HFSToPosixPath(zipfilename, zipfilename, 0);
 #endif
 	}
-	
-	//will extract without paths, everything will be flattened
-	opt_do_extract = opt_do_extract_withoutpath = 1;
 	
     if (zipfilename!=NULL)
     {
@@ -546,6 +571,11 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 done:
 if(uf)
 	unzCloseCurrentFile(uf);
+if(uf)
+	unzClose(uf);
+	
+if(passwdFmIgor)
+	free(passwdFmIgor);
 if(err2)
 	SetOperationNumVar("V_flag", 1);
 else
@@ -555,6 +585,7 @@ if(!err2){
 	fnames = (char*)malloc(sizeof(char)*GetHandleSize(fileNames)+1);
 	if(fnames==NULL)
 		err = NOMEM;
+	memset(fnames, 0, sizeof(char)*GetHandleSize(fileNames) + 1);
 	err = GetCStringFromHandle(fileNames, fnames, GetHandleSize(fileNames));
 	if(!err)
 		err = SetOperationStrVar("S_unzippedfiles", fnames);
@@ -576,6 +607,7 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	char temppath[MAX_PATH_LEN+1];
 	char zipFileIn[MAX_PATH_LEN+1];
 	int numfiles = 0;
+	char* passwdFmIgor = NULL;
 	
 	int i, len;
 	int dot_found=0;
@@ -603,6 +635,24 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	if (p->AFlagEncountered) {
 		opt_overwrite = 2;
 	}
+	
+	if (p->PASSFlagEncountered) {
+		// Parameter: p->PFlag_passwd (test for NULL handle before using)
+		if(!p->PASSFlag_passwd){
+			err = NULL_STRING_HANDLE;
+			goto done;
+		}
+		passwdFmIgor = (char*)malloc(sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		if(passwdFmIgor == NULL){
+			err = NOMEM;
+			goto done;
+		}
+		memset(passwdFmIgor,0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, GetHandleSize(p->PASSFlag_passwd)))
+			goto done;
+		password = passwdFmIgor;
+	}
+	
 	
 	// Main parameters.
 	
@@ -683,8 +733,6 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	} else
 		
         for (i=0 ; (i<numfiles) && (err2==ZIP_OK);i++){
-
- 
                 int size_read;
 				if(err = GetCStringFromHandle(p->files[i], temppath, MAX_PATH_LEN))
 					goto done;
@@ -762,7 +810,8 @@ if(fin)
 errclose = zipClose(zf,NULL);
 if (errclose != ZIP_OK)
 	err2 = PROBLEM_ZIPPING;
-
+if(passwdFmIgor)
+	free(passwdFmIgor);
 if(err2)
 	SetOperationNumVar("V_flag", 1);
 else

@@ -36,7 +36,7 @@ RegisterZIPfile(void)
 	char* runtimeStrVarList;
 
 	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
-	cmdTemplate = "ZIPfile/O string:path, string:file";
+	cmdTemplate = "ZIPfile/O/X/E/PASS=string:passwd string:path, string:file";
 	runtimeNumVarList = "V_flag";
 	runtimeStrVarList = "S_unzippedfiles";
 	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
@@ -50,7 +50,7 @@ RegisterZIPzipfiles(void)
 	char* runtimeStrVarList;
 
 	// NOTE: If you change this template, you must change the ZIPzipfilesRuntimeParams structure as well.
-	cmdTemplate = "ZIPzipfiles/O/A string:zipfile, string[100]:files";
+	cmdTemplate = "ZIPzipfiles/O/A/PASS=string:passwd string:zipfile, string[100]:files";
 	runtimeNumVarList = "V_flag";
 	runtimeStrVarList = "";
 	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPzipfilesRuntimeParams), (void*)ExecuteZIPzipfiles, 0);
