@@ -11,12 +11,25 @@
 // Runtime param structure for ZIPfile operation.
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 struct ZIPfileRuntimeParams {
-	
 	// Flag parameters.
+
 	// Parameters for /O flag group.
 	int OFlagEncountered;
 	// There are no fields for this group because it has no parameters.
-	
+
+	// Parameters for /X flag group.
+	int XFlagEncountered;
+	// There are no fields for this group because it has no parameters.
+
+	// Parameters for /E flag group.
+	int EFlagEncountered;
+	// There are no fields for this group because it has no parameters.
+
+	// Parameters for /P flag group.
+	int PASSFlagEncountered;
+	Handle PASSFlag_passwd;
+	int PASSFlagParamsSet[1];
+
 	// Main parameters.
 
 	// Parameters for simple main group #0.
@@ -33,6 +46,7 @@ struct ZIPfileRuntimeParams {
 	int calledFromFunction;					// 1 if called from a user function, 0 otherwise.
 	int calledFromMacro;					// 1 if called from a macro, 0 otherwise.
 };
+
 typedef struct ZIPfileRuntimeParams ZIPfileRuntimeParams;
 typedef struct ZIPfileRuntimeParams* ZIPfileRuntimeParamsPtr;
 #include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
@@ -50,6 +64,11 @@ struct ZIPzipfilesRuntimeParams {
 	// Parameters for /A flag group.
 	int AFlagEncountered;
 	// There are no fields for this group because it has no parameters.
+	
+	// Parameters for /P flag group.
+	int PASSFlagEncountered;
+	Handle PASSFlag_passwd;
+	int PASSFlagParamsSet[1];
 
 	// Main parameters.
 
