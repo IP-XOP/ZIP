@@ -1,8 +1,20 @@
 /*
- base64 - an XOP designed to encode/decode base64 strings
+ ZIP - an XOP designed to zip and unzip strings and files.
+ 
+ ZIP relies on the zlib library and Minizip.
+ 
+ ZLIB was written by Jean-loup Gailly and Mark Adler
+ http://www.zlib.net/
+ Minizip was written by Gilles Vollant.
+ http://www.winimage.com/zLibDll/minizip.html
+ ZIP could not have been written without this free sourcecode.
+ 
+ 
+ ZIPencode and ZIPdecode zip and unzip strings in the gz format.  This enables you to zip up files into the gz format, by reading the file into memory
+ ZIPfile is an operation designed to unzip zip files that contain multiple files
+ 
  */
-//string check = base64encode("weldon")
-
+ 
 #include "ZIPcode.h"
 #include "ZIPfile.h"
 
@@ -25,10 +37,25 @@ RegisterZIPfile(void)
 
 	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
 	cmdTemplate = "ZIPfile/O string:path, string:file";
-	runtimeNumVarList = "";
-	runtimeStrVarList = "";
+	runtimeNumVarList = "V_flag";
+	runtimeStrVarList = "S_unzippedfiles";
 	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
 }
+
+static int
+RegisterZIPzipfiles(void)
+{
+	char* cmdTemplate;
+	char* runtimeNumVarList;
+	char* runtimeStrVarList;
+
+	// NOTE: If you change this template, you must change the ZIPzipfilesRuntimeParams structure as well.
+	cmdTemplate = "ZIPzipfiles/O/A string:zipfile, string[100]:files";
+	runtimeNumVarList = "V_flag";
+	runtimeStrVarList = "";
+	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPzipfilesRuntimeParams), (void*)ExecuteZIPzipfiles, 0);
+}
+
 
 static long
 RegisterFunction()
@@ -55,6 +82,8 @@ RegisterOperations(void)		// Register any operations with Igor.
 	
 	// Register XOP1 operation.
 	if (result = RegisterZIPfile())
+		return result;
+	if (result = RegisterZIPzipfiles())
 		return result;
 	
 	// There are no more operations added by this XOP.
