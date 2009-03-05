@@ -18,7 +18,7 @@ public:
 	*@param Data A MemoryStruct object to which the data will be appended.
 	*@return The amount of memory allocated for the data you are trying to write
 	*/
-	static size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb,void* Data);
+	static size_t append(const void *ptr, size_t size, size_t nmemb,void* Data);
 
 	/**
 	*Writes data to a MemoryStruct object. 	
@@ -29,7 +29,30 @@ public:
 	*@param nmemb The number of data you are trying to store.
 	*@return The amount of memory allocated for the data you are trying to write.
 	*/
-	size_t WriteMemoryCallback(void *ptr, size_t size, size_t nmemb);
+	size_t append(const void *ptr, size_t size, size_t nmemb);
+
+	/**
+	*removes data from a MemoryStruct object. 	
+	Example:
+	*@param size The size of the type of data you wish to remove.
+	*@param offset whereabouts you want to start to remove from.
+	*@param nmemb The number of data you are trying to remove.
+	*@return the new size
+	*/
+	size_t remove(size_t offset, size_t size, size_t nmemb);
+
+	/**
+	*insers data into a MemoryStruct object at a given offset. 	
+	Example:
+	*@param offset whereabouts you want to start to remove from.
+	*@param ptr	the data you want to insert
+	*@param size The size of the type of data you wish to remove.
+	*@param nmemb The number of data you are trying to remove.
+	*return the new amount of memory inserted. 
+	*/
+	size_t insert(size_t offset, const void* ptr, size_t size, size_t nmemb);
+	
+
 	/**
 	*Obtain the number of bytes held in a MemoryStruct object.	Example:
 	*MemoryStruct a; long bytesAllocated; bytesAllocated = a.getMemSize();

@@ -3,7 +3,9 @@
  */
 //string check = base64encode("weldon")
 
-#include "ZIP.h"
+#include "ZIPcode.h"
+#include "ZIPfile.h"
+
 #include "zlib.h"
 
 #ifdef _MACINTOSH_
@@ -12,6 +14,21 @@ HOST_IMPORT int main(IORecHandle ioRecHandle);
 #ifdef _WINDOWS_
 HOST_IMPORT void main(IORecHandle ioRecHandle);
 #endif
+
+
+static int
+RegisterZIPfile(void)
+{
+	char* cmdTemplate;
+	char* runtimeNumVarList;
+	char* runtimeStrVarList;
+
+	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
+	cmdTemplate = "ZIPfile/O string:path, string:file";
+	runtimeNumVarList = "";
+	runtimeStrVarList = "";
+	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
+}
 
 static long
 RegisterFunction()
@@ -29,6 +46,22 @@ RegisterFunction()
 	}
 	return NIL;
 }
+
+static long
+RegisterOperations(void)		// Register any operations with Igor.
+{
+	int result;
+
+	
+	// Register XOP1 operation.
+	if (result = RegisterZIPfile())
+		return result;
+	
+	// There are no more operations added by this XOP.
+	
+	return 0;
+}
+
 
 /*	XOPEntry()
  
@@ -62,100 +95,24 @@ HOST_IMPORT int main(IORecHandle ioRecHandle)
 HOST_IMPORT void main(IORecHandle ioRecHandle)
 #endif
 {	
+	int result;
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.
 	SetXOPEntry(XOPEntry);							// Set entry point for future calls.
+	
+	if (result = RegisterOperations()) {
+		SetXOPResult(result);
+#ifdef _MACINTOSH_
+		return 0;
+#endif
+	}
 	
 	if (igorVersion < 504)
 		SetXOPResult(REQUIRES_IGOR_504);
 	else
 		SetXOPResult(0L);
+	
+#ifdef _MACINTOSH_
+	return 0;
+#endif
 }
 
-int ZIPencode(ZIPencoderStruct *p){
-	int err = 0;
-	
-	Handle dest = NULL;
-	MemoryStruct destMem;
-	long szSrc;
-	unsigned char *pChar;
-	int hState;
-	
-	if(p->src == NULL){
-		err = NULL_STRING_HANDLE;
-		p->dest = NULL;
-		goto done;
-	}
-	szSrc = GetHandleSize(p->src);
-	//copy over the data by locking and unlocking the handle
-	//wasteful of memory
-	hState = MoveLockHandle(p->src);
-	
-	pChar = (unsigned char*)*(p->src);
-
-	if(err = encode_zip(destMem, pChar, szSrc)){		
-		HSetState(p->src, hState ); 
-		goto done;
-	}
-	
-	dest = NewHandle(0);
-	if(err = PtrToHand((Ptr)destMem.getData(), &dest, destMem.getMemSize()))
-		goto done;
-		
-	p->dest = dest;
-	
-done:	
-	if(err)
-		if(dest)
-			DisposeHandle(dest);	
-	if(p->src)
-		DisposeHandle(p->src);
-	
-	return err;
-}
-
-
-
-
-int ZIPdecode(ZIPencoderStruct *p){
-	int err = 0;
-	
-	Handle dest = NULL;
-	MemoryStruct destMem;
-	
-	unsigned char *pChar;
-	long szSrc;
-	int hState;
-	
-	if(p->src == NULL){
-		err = NULL_STRING_HANDLE;
-		p->dest = NULL;
-		goto done;
-	}
-	szSrc = GetHandleSize(p->src);
-	
-	//copy over the data by locking and unlocking the handle
-	//wasteful of memory
-	hState = MoveLockHandle(p->src);
-	
-	pChar = (unsigned char*)*(p->src);	
-
-	if(err = decode_zip(destMem, pChar, szSrc)){
-		HSetState(p->src, hState ); 
-		goto done;
-	}
-	
-	dest = NewHandle(0);
-	if(err = PtrToHand((Ptr)destMem.getData(), &dest, destMem.getMemSize()))
-		goto done;
-		
-	p->dest = dest;
-	
-done:	
-	if(err)
-		if(dest)
-			DisposeHandle(dest);	
-	if(p->src)
-		DisposeHandle(p->src);
-	
-	return err;
-}
