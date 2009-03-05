@@ -20,6 +20,14 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"One of the input strings is NULL.",
 	//[3]
 	"A problem was experienced while unzipping.",
+	//[4]
+	"Symbolic path doesn't point to folder.",
+	//[5]
+	"Cannot open ZIP file",
+	//[6]
+	"Cannot change directory",
+	//[7]
+	"Problem while extracting",
 	}
 };
 
@@ -53,5 +61,12 @@ resource 'XOPF' (1100) {
 		{									
 		HSTRING_TYPE,										
 		},
+	}
+};
+
+resource 'XOPC' (1100) {
+	{
+		"ZIPfile",								// Name of operation.
+		XOPOp+UtilOP+compilableOp,			// Operation's category.
 	}
 };

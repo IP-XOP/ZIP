@@ -11,7 +11,7 @@ MemoryStruct::MemoryStruct(){
 MemoryStruct::MemoryStruct(void *ptr, size_t size, size_t nmemb){
 	memory=NULL;
 	memsize=0;
-	WriteMemoryCallback(ptr, size, nmemb);
+	append(ptr, size, nmemb);
 }
 
 //destructor free's the memory
@@ -56,7 +56,7 @@ void *MemoryStruct::myrealloc(void *src_ptr, size_t size)
 //data has to be a point of a MemoryStruct object
 
 size_t
-MemoryStruct::WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *Data)
+MemoryStruct::append(const void *ptr, size_t size, size_t nmemb, void *Data)
 {
     size_t realsize = size * nmemb;
     MemoryStruct *mem = (MemoryStruct *)Data;
@@ -72,7 +72,7 @@ MemoryStruct::WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *Da
 }
 
 size_t
-MemoryStruct::WriteMemoryCallback(void *ptr, size_t size, size_t nmemb)
+MemoryStruct::append(const void *ptr, size_t size, size_t nmemb)
 {
     size_t realsize = size * nmemb;
 	
@@ -80,6 +80,58 @@ MemoryStruct::WriteMemoryCallback(void *ptr, size_t size, size_t nmemb)
     if (memory) {
 		memcpy(&(memory[memsize]), ptr, realsize);
 		memsize += realsize;
+    } else
+		throw (std::bad_alloc());
+
+    return realsize;
+}
+
+size_t
+MemoryStruct::remove(size_t offset, size_t size, size_t nmemb)
+{
+	size_t realsize = memsize - size * nmemb;
+	
+	if(realsize < 0 ||
+		(offset*size) < 0 ||
+			(offset*size) > memsize-1 ||
+				offset < 0 ||
+					nmemb < 0 ||
+						size < 0 ||
+							(offset*size) + (nmemb*size) > memsize)
+		throw (std::bad_alloc());
+		
+	//move the memory after the offset
+	memmove( memory+(size*offset) , memory + (size*offset) + (nmemb * size), memsize - size*(offset  + nmemb));
+		
+    memory = (unsigned char *)myrealloc(memory, realsize);
+    if (memory) {
+		memsize = realsize;
+    } else
+		throw (std::bad_alloc());
+
+    return realsize;
+}
+
+size_t
+MemoryStruct::insert(size_t offset, const void* ptr, size_t size, size_t nmemb)
+{
+	size_t realsize = size * nmemb;
+
+	if(realsize < 0 ||
+		(offset*size) < 0 ||
+			(offset*size) > memsize-1 ||
+				offset < 0 ||
+					nmemb < 0 ||
+						size < 0)
+		throw (std::bad_alloc());
+		
+	memory = (unsigned char *)myrealloc(memory, memsize + realsize);
+    if (memory) {
+		//move the memory after the offset
+		memmove( memory+ size*(offset + nmemb), memory + (size*offset), memsize - size*offset);
+		memsize += realsize;
+		//now copy in the pointer that was supplied
+		memcpy(memory + (size * offset), ptr, realsize);
     } else
 		throw (std::bad_alloc());
 
