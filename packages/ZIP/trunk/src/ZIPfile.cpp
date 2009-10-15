@@ -136,10 +136,10 @@ int makedir (const char* newdir){
 
 #ifdef _WINDOWS_
 uLong filetime(const char* f, tm_zip* tmzip, uLong* dt){
-               /* name of file to get info on */
-            /* return value: access, modific. and creation times */
-          /* dostime */
-
+	/* name of file to get info on */
+	/* return value: access, modific. and creation times */
+	/* dostime */
+	
 	int ret = 0;
 	{
 		FILETIME ftLocal;
@@ -413,19 +413,19 @@ int do_extract(unzFile uf, int opt_extract_without_path, int opt_overwrite, cons
     for (i=0;i<gi.number_entry;i++){
 		char filename_inzip[256];
         unz_file_info file_info;
-
+		
 		if (do_extract_currentfile(uf,&opt_extract_without_path,
 								   &opt_overwrite,
 								   password) != UNZ_OK)
             break;
-
+		
 		err = unzGetCurrentFileInfo(uf,&file_info,filename_inzip,sizeof(filename_inzip),NULL,0,NULL,0);
 		
 		if(err = PtrAndHand((Ptr)&filename_inzip, fileNames, sizeof(char)*strlen(filename_inzip)))
 			return err;
 		if(err = PtrAndHand((Ptr)sep, fileNames, sizeof(char)))
 			return err;
-						
+		
         if ((i+1)<gi.number_entry)
         {
             err = unzGoToNextFile(uf);
@@ -460,7 +460,12 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	
 	memset(dirname, 0, MAX_PATH_LEN+1);
 	memset(zipfilename, 0, MAX_PATH_LEN+1);
+	
 	fileNames = NewHandle(0);
+	if(fileNames == NULL){
+		err = NOMEM;
+		goto done;
+	}
 	
 	//if you want to overwrite existing files
 	if (p->OFlagEncountered) {
@@ -470,11 +475,11 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	if (p->XFlagEncountered) {
 		opt_do_extract=1;
 	}
-
+	
 	if (p->EFlagEncountered) {
 		opt_do_extract = opt_do_extract_withoutpath = 1;
 	}
-
+	
 	if (p->PASSFlagEncountered) {
 		// Parameter: p->PFlag_passwd (test for NULL handle before using)
 		if(!p->PASSFlag_passwd){
@@ -569,31 +574,32 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	}
 	
 done:
-if(uf)
-	unzCloseCurrentFile(uf);
-if(uf)
-	unzClose(uf);
+	if(uf)
+		unzCloseCurrentFile(uf);
+	if(uf)
+		unzClose(uf);
 	
-if(passwdFmIgor)
-	free(passwdFmIgor);
-if(err2)
-	SetOperationNumVar("V_flag", 1);
-else
-	SetOperationNumVar("V_flag", 0);
-if(!err2){
-	char* fnames = NULL;
-	fnames = (char*)malloc(sizeof(char)*GetHandleSize(fileNames)+1);
-	if(fnames==NULL)
-		err = NOMEM;
-	memset(fnames, 0, sizeof(char)*GetHandleSize(fileNames) + 1);
-	err = GetCStringFromHandle(fileNames, fnames, GetHandleSize(fileNames));
-	if(!err)
-		err = SetOperationStrVar("S_unzippedfiles", fnames);
-	if(fnames)
-		free(fnames);
-}
-if(fileNames)
-	DisposeHandle(fileNames);
+	if(passwdFmIgor)
+		free(passwdFmIgor);
+	if(err2)
+		SetOperationNumVar("V_flag", 1);
+	else
+		SetOperationNumVar("V_flag", 0);
+	
+	if(!err2){
+		char* fnames = NULL;
+		fnames = (char*)malloc(sizeof(char)*GetHandleSize(fileNames)+1);
+		if(fnames==NULL)
+			err = NOMEM;
+		memset(fnames, 0, sizeof(char)*GetHandleSize(fileNames) + 1);
+		err = GetCStringFromHandle(fileNames, fnames, GetHandleSize(fileNames));
+		if(!err)
+			err = SetOperationStrVar("S_unzippedfiles", fnames);
+		if(fnames)
+			free(fnames);
+	}
+	if(fileNames)
+		DisposeHandle(fileNames);
 	
 	return err;
 	
@@ -622,7 +628,6 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	zipFile zf = NULL;
 	int errclose;
 	FILE * fin = NULL;
-	
 	
 	memset(zipfile, 0, MAX_PATH_LEN);
 	memset(zipFileIn, 0, MAX_PATH_LEN);	
@@ -666,9 +671,9 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 			goto done;
 		if(err = GetNativePath(temppath,zipfile))
 			goto done;
-		#ifdef _MACINTOSH_
+#ifdef _MACINTOSH_
 		HFSToPosixPath(zipfile, zipfile, 1);
-		#endif
+#endif
 	}
 	
 	if (p->filesEncountered) {
@@ -717,8 +722,8 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
             if (check_exist_file(filename_try)!=0)
 				goto done;
 	}
-
-
+	
+	
 #        ifdef USEWIN32IOAPI
 	zlib_filefunc_def ffunc;
 	fill_win32_filefunc(&ffunc);
@@ -730,93 +735,92 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	if (zf == NULL){
 		err2= PROBLEM_ZIPPING;
 		goto done;
-	} else
-		
+	} else {
         for (i=0 ; (i<numfiles) && (err2==ZIP_OK);i++){
-                int size_read;
-				if(err = GetCStringFromHandle(p->files[i], temppath, MAX_PATH_LEN))
-					goto done;
-				if(err = GetNativePath(temppath,zipFileIn))
-					goto done;
-				#ifdef _MACINTOSH_
-				HFSToPosixPath(zipFileIn, zipFileIn, 1);
-				#endif
-		
-                const char* filenameinzip = zipFileIn;
-                zip_fileinfo zi;
-                unsigned long crcFile=0;
-				
-                zi.tmz_date.tm_sec = zi.tmz_date.tm_min = zi.tmz_date.tm_hour =
-                zi.tmz_date.tm_mday = zi.tmz_date.tm_mon = zi.tmz_date.tm_year = 0;
-                zi.dosDate = 0;
-                zi.internal_fa = 0;
-                zi.external_fa = 0;
-                filetime(filenameinzip, &zi.tmz_date,&zi.dosDate);
-				
-				/*
-				 err = zipOpenNewFileInZip(zf,filenameinzip,&zi,
-				 NULL,0,NULL,0,NULL / * comment * /,
-				 (opt_compress_level != 0) ? Z_DEFLATED : 0,
-				 opt_compress_level);
-				 */
-                if ((password != NULL) && (err2==ZIP_OK))
-                    err2 = getFileCrc(filenameinzip,buf,size_buf,&crcFile);
-					
-					err2 = zipOpenNewFileInZip3(zf,filenameinzip,&zi,
-											   NULL,0,NULL,0,NULL /* comment*/,
-											   (opt_compress_level != 0) ? Z_DEFLATED : 0,
-											   opt_compress_level,0,
-											   /* -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, */
-											   -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-											   password,crcFile);
-					
-					if (err2 != ZIP_OK){
-					} else {
-						fin = fopen(filenameinzip,"rb");
-						if (fin==NULL)
-							err2=PROBLEM_ZIPPING;
-					}
-				
-                if (err2 == ZIP_OK)
-                    do {
-                        err2 = ZIP_OK;
-                        size_read = (int)fread(buf,1,size_buf,fin);
-                        if (size_read < size_buf)
-                            if (feof(fin)==0)
-								err2 = PROBLEM_ZIPPING;
-						
-                        if (size_read>0)
-							err2 = zipWriteInFileInZip (zf,buf,size_read);
-                    } while ((err2 == ZIP_OK) && (size_read>0));
-				
-                if (fin){
-                    fclose(fin);
-					fin = NULL;
-				}
-				
-				if (err2<0)
+			int size_read;
+			if(err = GetCStringFromHandle(p->files[i], temppath, MAX_PATH_LEN))
+				goto done;
+			if(err = GetNativePath(temppath,zipFileIn))
+				goto done;
+#ifdef _MACINTOSH_
+			HFSToPosixPath(zipFileIn, zipFileIn, 1);
+#endif
+			
+			const char* filenameinzip = zipFileIn;
+			zip_fileinfo zi;
+			unsigned long crcFile=0;
+			
+			zi.tmz_date.tm_sec = zi.tmz_date.tm_min = zi.tmz_date.tm_hour =
+			zi.tmz_date.tm_mday = zi.tmz_date.tm_mon = zi.tmz_date.tm_year = 0;
+			zi.dosDate = 0;
+			zi.internal_fa = 0;
+			zi.external_fa = 0;
+			filetime(filenameinzip, &zi.tmz_date,&zi.dosDate);
+			
+			/*
+			 err = zipOpenNewFileInZip(zf,filenameinzip,&zi,
+			 NULL,0,NULL,0,NULL / * comment * /,
+			 (opt_compress_level != 0) ? Z_DEFLATED : 0,
+			 opt_compress_level);
+			 */
+			if ((password != NULL) && (err2==ZIP_OK))
+				err2 = getFileCrc(filenameinzip,buf,size_buf,&crcFile);
+			
+			err2 = zipOpenNewFileInZip3(zf,filenameinzip,&zi,
+										NULL,0,NULL,0,NULL /* comment*/,
+										(opt_compress_level != 0) ? Z_DEFLATED : 0,
+										opt_compress_level,0,
+										/* -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, */
+										-MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
+										password,crcFile);
+			
+			if (err2 != ZIP_OK){
+			} else {
+				fin = fopen(filenameinzip,"rb");
+				if (fin==NULL)
 					err2=PROBLEM_ZIPPING;
-				else
-					err2 = zipCloseFileInZip(zf);
+			}
+			
+			if (err2 == ZIP_OK)
+				do {
+					err2 = ZIP_OK;
+					size_read = (int)fread(buf,1,size_buf,fin);
+					if (size_read < size_buf)
+						if (feof(fin)==0)
+							err2 = PROBLEM_ZIPPING;
+					
+					if (size_read>0)
+						err2 = zipWriteInFileInZip (zf,buf,size_read);
+				} while ((err2 == ZIP_OK) && (size_read>0));
+			
+			if (fin){
+				fclose(fin);
+				fin = NULL;
+			}
+			
+			if (err2<0)
+				err2=PROBLEM_ZIPPING;
+			else
+				err2 = zipCloseFileInZip(zf);
             
         }
-
-
-done:
-if(buf)
-	free(buf);
-if(fin)
-	fclose(fin);
-errclose = zipClose(zf,NULL);
-if (errclose != ZIP_OK)
-	err2 = PROBLEM_ZIPPING;
-if(passwdFmIgor)
-	free(passwdFmIgor);
-if(err2)
-	SetOperationNumVar("V_flag", 1);
-else
-	SetOperationNumVar("V_flag", 0);
 	
-return err;
-
+	}
+done:
+	if(buf)
+		free(buf);
+	if(fin)
+		fclose(fin);
+	errclose = zipClose(zf,NULL);
+	if (errclose != ZIP_OK)
+		err2 = PROBLEM_ZIPPING;
+	if(passwdFmIgor)
+		free(passwdFmIgor);
+	if(err2)
+		SetOperationNumVar("V_flag", 1);
+	else
+		SetOperationNumVar("V_flag", 0);
+	
+	return err;
+	
 }
