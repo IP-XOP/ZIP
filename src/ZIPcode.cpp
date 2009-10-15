@@ -68,13 +68,17 @@ int ZIPencode(ZIPencoderStruct *p){
 		goto done;
 	
 done:	
-	if(err)
-		PutCStringInHandle("",dest);
-	
-	p->dest = dest;
-		
 	if(p->src)
 		DisposeHandle(p->src);
+	
+	p->dest = NULL;	// Init to NULL
+	if (err != 0) {
+		if (dest != NULL)
+			DisposeHandle(dest);
+		return err;
+	}
+	p->dest = dest;
+
 	
 	return err;
 }
@@ -118,14 +122,17 @@ int ZIPdecode(ZIPencoderStruct *p){
 		goto done;
 		
 	
-done:	
-	if(err)
-		PutCStringInHandle("",dest);
-
-	p->dest = dest;
+done:		
 	if(p->src)
 		DisposeHandle(p->src);
-	
+
+	p->dest = NULL;	// Init to NULL
+	if (err != 0) {
+		if (dest != NULL)
+			DisposeHandle(dest);
+		return err;
+	}
+	p->dest = dest;	
 	return err;
 }
 
