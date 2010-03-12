@@ -1,11 +1,3 @@
-/*
- *  error.h
- *  XMLutils
- *
- *  Created by andrew on 6/11/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
 
 // Custom error codes
 #define REQUIRES_IGOR_504				1 + FIRST_XOP_ERR
@@ -14,5 +6,8 @@
 #define SYMBOLIC_PATH_ISNT_FOLDER		4 + FIRST_XOP_ERR
 #define CANNOT_OPEN_ZIPFILE				5 + FIRST_XOP_ERR
 #define CANNOT_CHANGE_DIR				6 + FIRST_XOP_ERR
-#define PROBLEM_EXTRACTING_ZIP			7 + FIRST_XOP_ERR
+#define PROBLEM_EXTRACTING				7 + FIRST_XOP_ERR
 #define PROBLEM_ZIPPING					8 + FIRST_XOP_ERR
+#define CANT_OPEN_TARFILE				9 + FIRST_XOP_ERR
+#define NOT_A_FILE_OR_FOLDER			10 + FIRST_XOP_ERR
+#define PROBLEM_APPENDING_TO_TAR		11 + FIRST_XOP_ERR

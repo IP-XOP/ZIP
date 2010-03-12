@@ -91,3 +91,6 @@ typedef struct ZIPzipfilesRuntimeParams* ZIPzipfilesRuntimeParamsPtr;
 #include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
 
 int ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p);
+
+int RegisterZIPfile(void);
+int RegisterZIPzipfiles(void);

@@ -17,8 +17,12 @@
  
 #include "ZIPcode.h"
 #include "ZIPfile.h"
-
 #include "zlib.h"
+
+#ifdef _MACINTOSH_
+#include "tar_append.h"
+#include "tar_extract.h"
+#endif
 
 #ifdef _MACINTOSH_
 HOST_IMPORT int main(IORecHandle ioRecHandle);
@@ -26,36 +30,6 @@ HOST_IMPORT int main(IORecHandle ioRecHandle);
 #ifdef _WINDOWS_
 HOST_IMPORT void main(IORecHandle ioRecHandle);
 #endif
-
-
-static int
-RegisterZIPfile(void)
-{
-	char* cmdTemplate;
-	char* runtimeNumVarList;
-	char* runtimeStrVarList;
-
-	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
-	cmdTemplate = "ZIPfile/O/X/E/PASS=string:passwd string:path, string:file";
-	runtimeNumVarList = "V_flag";
-	runtimeStrVarList = "S_unzippedfiles";
-	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
-}
-
-static int
-RegisterZIPzipfiles(void)
-{
-	char* cmdTemplate;
-	char* runtimeNumVarList;
-	char* runtimeStrVarList;
-
-	// NOTE: If you change this template, you must change the ZIPzipfilesRuntimeParams structure as well.
-	cmdTemplate = "ZIPzipfiles/O/A/PASS=string:passwd string:zipfile, string[100]:files";
-	runtimeNumVarList = "V_flag";
-	runtimeStrVarList = "";
-	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPzipfilesRuntimeParams), (void*)ExecuteZIPzipfiles, 0);
-}
-
 
 static long
 RegisterFunction()
@@ -80,12 +54,16 @@ RegisterOperations(void)		// Register any operations with Igor.
 	int result;
 
 	
-	// Register XOP1 operation.
 	if (result = RegisterZIPfile())
 		return result;
 	if (result = RegisterZIPzipfiles())
 		return result;
-	
+#ifdef _MACINTOSH_
+	if (result = Registertar_append())
+		return result;
+	if (result = Registertar_extract())
+		return result;
+#endif
 	// There are no more operations added by this XOP.
 	
 	return 0;
