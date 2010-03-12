@@ -37,6 +37,30 @@
 #include "iowin32.h"
 #endif
 
+int RegisterZIPfile(void){
+	char* cmdTemplate;
+	char* runtimeNumVarList;
+	char* runtimeStrVarList;
+	
+	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
+	cmdTemplate = "ZIPfile/O/X/E/PASS=string:passwd string:path, string:file";
+	runtimeNumVarList = "V_flag";
+	runtimeStrVarList = "S_unzippedfiles";
+	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
+}
+
+int RegisterZIPzipfiles(void){
+	char* cmdTemplate;
+	char* runtimeNumVarList;
+	char* runtimeStrVarList;
+	
+	// NOTE: If you change this template, you must change the ZIPzipfilesRuntimeParams structure as well.
+	cmdTemplate = "ZIPzipfiles/O/A/PASS=string:passwd string:zipfile, string[100]:files";
+	runtimeNumVarList = "V_flag";
+	runtimeStrVarList = "";
+	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPzipfilesRuntimeParams), (void*)ExecuteZIPzipfiles, 0);
+}
+
 
 /* change_file_date : change the date/time of a file
  filename : the filename of the file where date/time must be modified
@@ -486,12 +510,12 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 			err = NULL_STRING_HANDLE;
 			goto done;
 		}
-		passwdFmIgor = (char*)malloc(sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		passwdFmIgor = (char*)malloc( sizeof(char) * GetHandleSize(p->PASSFlag_passwd) + 1);
 		if(passwdFmIgor == NULL){
 			err = NOMEM;
 			goto done;
 		}
-		memset(passwdFmIgor,0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		memset(passwdFmIgor, 0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd) + 1);
 		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, GetHandleSize(p->PASSFlag_passwd)))
 			goto done;
 		password = passwdFmIgor;
@@ -507,8 +531,12 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 		}
 		if(err = GetCStringFromHandle(p->path, temppath, MAX_PATH_LEN))
 			goto done;
-		if(err = GetNativePath(temppath,dirname))
+		if(err = GetNativePath(temppath, dirname))
 			goto done;
+		if(!FullPathPointsToFolder(dirname)){
+			err = SYMBOLIC_PATH_ISNT_FOLDER;
+			goto done;
+		}
 #ifdef _MACINTOSH_
 		HFSToPosixPath(dirname, dirname, 1);
 #endif
@@ -529,8 +557,7 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 #endif
 	}
 	
-    if (zipfilename!=NULL)
-    {
+    if (zipfilename!=NULL){
 		
 #        ifdef USEWIN32IOAPI
         zlib_filefunc_def ffunc;
@@ -568,7 +595,7 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 			goto done;
         }
         if(err2 = do_extract(uf, opt_do_extract_withoutpath, opt_overwrite, password, fileNames)){
-			err2 = PROBLEM_EXTRACTING_ZIP;
+			err2 = PROBLEM_EXTRACTING;
 			goto done;
 		}
 	}
@@ -669,7 +696,7 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 		}
 		if(err = GetCStringFromHandle(p->zipfile, temppath, MAX_PATH_LEN))
 			goto done;
-		if(err = GetNativePath(temppath,zipfile))
+		if(err = GetNativePath(temppath, zipfile))
 			goto done;
 #ifdef _MACINTOSH_
 		HFSToPosixPath(zipfile, zipfile, 1);
@@ -681,7 +708,7 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 		Handle strH;
 		int ii;
 		
-		for(ii=0; ii<100; ii++) {
+		for(ii = 0; ii < 100; ii++) {
 			if (paramsSet[ii] == 0)
 				break;		// No more parameters.
 			strH = p->files[ii];
@@ -706,20 +733,20 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 	filename_try[ MAX_PATH_LEN ] = '\0';
 	
 	len=(int)strlen(filename_try);
-	for (i=0;i<len;i++)
-		if (filename_try[i]=='.')
-			dot_found=1;
+	for (i = 0 ; i < len ; i++)
+		if (filename_try[i] == '.')
+			dot_found = 1;
 	
-	if (dot_found==0)
-		strcat(filename_try,".zip");
+	if (dot_found == 0)
+		strcat(filename_try, ".zip");
 	
 	if (opt_overwrite==2){
 		/* if the file don't exist, we not append file */
-		if (check_exist_file(filename_try)==0)
-			opt_overwrite=1;
+		if (check_exist_file(filename_try) == 0)
+			opt_overwrite = 1;
 	} else {
-        if (opt_overwrite==0)
-            if (check_exist_file(filename_try)!=0)
+        if (opt_overwrite == 0)
+            if (check_exist_file(filename_try) != 0)
 				goto done;
 	}
 	

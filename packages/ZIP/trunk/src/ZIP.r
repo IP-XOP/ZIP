@@ -21,7 +21,7 @@ resource 'STR#' (1100) {					/* custom error messages */
 	//[3]
 	"A problem was experienced while unzipping.",
 	//[4]
-	"Symbolic path doesn't point to folder.",
+	"Path doesn't point to folder.",
 	//[5]
 	"Cannot open ZIP file",
 	//[6]
@@ -30,6 +30,12 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Problem while extracting",
 	//[8]
 	"Problem while zipping",
+	//[9]
+	"Can't open the tarfile",
+	//[10]
+	"You need to supply a file or folder",
+	//[11]
+	"Problem appending to tar file",
 	}
 };
 
@@ -71,6 +77,10 @@ resource 'XOPC' (1100) {
 		"ZIPfile",								// Name of operation.
 		XOPOp+UtilOP+compilableOp,			// Operation's category.
 		"ZIPzipfiles",
+		XOPOp+UtilOP+compilableOp,			// Operation's category.
+		"tar_append",
+		XOPOp+UtilOP+compilableOp,			// Operation's category.
+		"tar_extract",
 		XOPOp+UtilOP+compilableOp,			// Operation's category.
 	}
 };
