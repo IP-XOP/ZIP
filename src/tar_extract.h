@@ -7,7 +7,7 @@
  *
  */
 #include "XOPStandardHeaders.h"
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 struct tar_extractRuntimeParams {
 	// Flag parameters.
 	
@@ -33,7 +33,7 @@ struct tar_extractRuntimeParams {
 };
 typedef struct tar_extractRuntimeParams tar_extractRuntimeParams;
 typedef struct tar_extractRuntimeParams* tar_extractRuntimeParamsPtr;
-#include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
+#pragma pack()		// Reset structure alignment to default.
 
 int Registertar_extract(void);
 int Executetar_extract(tar_extractRuntimeParamsPtr p);

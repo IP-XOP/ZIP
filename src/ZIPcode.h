@@ -11,12 +11,12 @@ int encode_zip(MemoryStruct &dest, const unsigned char *src, unsigned long szSrc
 /*
 in encode/decode.cpp
 */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct ZIPencoderStruct {
 	Handle src;
 	Handle dest;			//the string containing the content
 }ZIPencoderStruct, *ZIPencoderStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 
 int ZIPencode (ZIPencoderStructPtr p);
 int ZIPdecode (ZIPencoderStructPtr p);

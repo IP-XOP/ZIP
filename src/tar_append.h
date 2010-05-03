@@ -1,7 +1,7 @@
 
 // Operation template: tar_append string:tarFile, string:theFile
 // Runtime param structure for tar_append operation.
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 struct tar_appendRuntimeParams {
 	// Flag parameters.
 	
@@ -27,7 +27,7 @@ struct tar_appendRuntimeParams {
 };
 typedef struct tar_appendRuntimeParams tar_appendRuntimeParams;
 typedef struct tar_appendRuntimeParams* tar_appendRuntimeParamsPtr;
-#include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
+#pragma pack()		// Reset structure alignment to default.
 
 
 int Registertar_append(void);

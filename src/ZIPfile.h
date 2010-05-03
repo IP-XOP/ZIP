@@ -9,7 +9,7 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 
 // Runtime param structure for ZIPfile operation.
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 struct ZIPfileRuntimeParams {
 	// Flag parameters.
 
@@ -49,11 +49,11 @@ struct ZIPfileRuntimeParams {
 
 typedef struct ZIPfileRuntimeParams ZIPfileRuntimeParams;
 typedef struct ZIPfileRuntimeParams* ZIPfileRuntimeParamsPtr;
-#include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
+#pragma pack()		// Reset structure alignment to default.
 
 int ExecuteZIPfile(ZIPfileRuntimeParamsPtr p);
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 struct ZIPzipfilesRuntimeParams {
 	// Flag parameters.
 
@@ -88,7 +88,7 @@ struct ZIPzipfilesRuntimeParams {
 };
 typedef struct ZIPzipfilesRuntimeParams ZIPzipfilesRuntimeParams;
 typedef struct ZIPzipfilesRuntimeParams* ZIPzipfilesRuntimeParamsPtr;
-#include "XOPStructureAlignmentReset.h"		// Reset structure alignment to default.
+#pragma pack()		// Reset structure alignment to default.
 
 int ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p);
 
