@@ -24,6 +24,18 @@ BEGIN
 	"Problem while extracting.\0",
 	//[8]
 	"Problem while zipping.\0",
+	//[9]
+	"Can't open the tarfile.\0",
+	//[10]
+	"You need to supply a file or folder.\0",
+	//[11]
+	"Problem appending to tar file.\0",
+	//[12]
+	"Can't locate file in archive\0",
+	//[13]
+	"No ZIP archive by that file handle\0",
+	//[14]
+	"A problem was encountered whilst trying to list files\0",
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
@@ -55,7 +67,38 @@ BEGIN
 		F_EXP | F_EXTERNAL,				// Function category,
 		HSTRING_TYPE,						// Return value type.								
 			HSTRING_TYPE,						
+			0,	
+		"ZIPa_openArchive",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+			HSTRING_TYPE,										
 			0,
+		"ZIPa_closeArchive",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.								
+			NT_FP64,										
+			0,
+		"ZIPa_ls",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		HSTRING_TYPE,						// Return value type.								
+			NT_FP64,										
+			0,
+		"ZIPa_open",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+			NT_FP64,
+			HSTRING_TYPE,
+			0,
+		"ZIPa_close",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.								
+			NT_FP64,
+			0,
+		"ZIPa_info",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		HSTRING_TYPE,						// Return value type.								
+			NT_FP64,
+			0,		
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
@@ -65,5 +108,7 @@ BEGIN
 	utilOp | XOPOp | compilableOp,
     "ZIPzipfiles\0",
 	utilOp | XOPOp | compilableOp,
+	"ZIPa_read\0",
+	XOPOp+UtilOP+compilableOp,
 	"\0"							// NOTE: NULL required to terminate the resource.
 END
