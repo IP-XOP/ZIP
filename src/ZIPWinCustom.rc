@@ -68,33 +68,33 @@ BEGIN
 		HSTRING_TYPE,						// Return value type.								
 			HSTRING_TYPE,						
 			0,	
-		"ZIPa_openArchive",					// Function name.
+		"ZIPa_openArchive\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 			HSTRING_TYPE,										
 			0,
-		"ZIPa_closeArchive",					// Function name.
+		"ZIPa_closeArchive\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.								
 			NT_FP64,										
 			0,
-		"ZIPa_ls",					// Function name.
+		"ZIPa_ls\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		HSTRING_TYPE,						// Return value type.								
 			NT_FP64,										
 			0,
-		"ZIPa_open",					// Function name.
+		"ZIPa_open\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 			NT_FP64,
 			HSTRING_TYPE,
 			0,
-		"ZIPa_close",					// Function name.
+		"ZIPa_close\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.								
 			NT_FP64,
 			0,
-		"ZIPa_info",					// Function name.
+		"ZIPa_info\0",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		HSTRING_TYPE,						// Return value type.								
 			NT_FP64,
