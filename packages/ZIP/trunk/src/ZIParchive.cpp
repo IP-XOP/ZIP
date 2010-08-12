@@ -30,7 +30,6 @@
 #include <ctime>
 
 using namespace std;
-pthread_mutex_t pinstanceMutex = PTHREAD_MUTEX_INITIALIZER;
 std::map<long, ZIParchive> openZIPfiles;
 
 /*
@@ -306,7 +305,7 @@ int ZIPa_ls(ZIPa_lsStructPtr p){
 		goto done;
 	}
 	
-	if(err = PtrToHand(buf.getData(), &theFileNames, buf.getMemSize()))
+	if(err = PtrToHand((Ptr)buf.getData(), &theFileNames, buf.getMemSize()))
 	   goto done;
 	   
 done:
@@ -376,5 +375,25 @@ int ZIPa_info(ZIPa_infoStructPtr){
 	int err = 0;
 	return err;
 };
+
+#ifdef _WINDOWS_
+double roundf(double val){
+	double retval;
+	if(val>0){
+		if(val-floor(val) < 0.5){
+			retval = floor(val);
+		} else {
+			retval = ceil(val);
+		}
+	} else {
+		if(val-floor(val) <= 0.5){
+			retval = floor(val);
+		} else {
+			retval = ceil(val);
+		}
+	}
+	return retval;
+}
+#endif
 
 
