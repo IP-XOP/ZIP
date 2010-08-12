@@ -19,7 +19,6 @@ int ZIPencode(ZIPencoderStruct *p){
 	MemoryStruct destMem;
 	unsigned long szSrc;
 	unsigned char *pChar;
-	int hState;
 	unsigned char gzipHeader[10];
 	unsigned long crc32;
 	
@@ -44,18 +43,12 @@ int ZIPencode(ZIPencoderStruct *p){
 	destMem.append(gzipHeader, sizeof(char), 10);
 	
 	szSrc = GetHandleSize(p->src);
-	//copy over the data by locking and unlocking the handle
-	//wasteful of memory
-	hState = MoveLockHandle(p->src);
 	
 	//get a pointer to the start of the data you want to zip.
 	pChar = (unsigned char*)*(p->src);
 	
-	
-	if(err = encode_zip(destMem, pChar, szSrc, &crc32)){		
-		HSetState(p->src, hState ); 
+	if(err = encode_zip(destMem, pChar, szSrc, &crc32))
 		goto done;
-	}
 	
 	//remove the header and tail of the zlib format, in order to add in the gzip headers.
 	destMem.remove(10, sizeof(unsigned char), 2);
@@ -79,7 +72,6 @@ done:
 	}
 	p->dest = dest;
 
-	
 	return err;
 }
 
@@ -94,7 +86,6 @@ int ZIPdecode(ZIPencoderStruct *p){
 	
 	unsigned char *pChar;
 	long szSrc;
-	int hState;
 	
 	if(p->src == NULL){
 		err = NULL_STRING_HANDLE;
@@ -108,15 +99,10 @@ int ZIPdecode(ZIPencoderStruct *p){
 		
 	//copy over the data by locking and unlocking the handle
 	//wasteful of memory
-	hState = MoveLockHandle(p->src);
-	
 	pChar = (unsigned char*)*(p->src);	
 
-	if(err = decode_zip(destMem, pChar, szSrc)){
-		HSetState(p->src, hState ); 
+	if(err = decode_zip(destMem, pChar, szSrc))
 		goto done;
-	}
-	
 
 	if(err = PtrToHand((Ptr)destMem.getData(), &dest, destMem.getMemSize()))
 		goto done;
@@ -233,7 +219,6 @@ int decode_zip(MemoryStruct &dest, const unsigned char *src, long szSrc) {
     if (ret != Z_OK)
         return PROBLEM_UNZIPPING;
 
-	
 	//size of zip source
 	size_t szSrcRead = 0;
 	

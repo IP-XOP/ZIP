@@ -18,6 +18,7 @@
 #include "ZIPcode.h"
 #include "ZIPfile.h"
 #include "zlib.h"
+#include "ZIParchive.h"
 
 #ifdef _MACINTOSH_
 #include "tar_append.h"
@@ -28,7 +29,7 @@
 HOST_IMPORT int main(IORecHandle ioRecHandle);
 #endif	
 #ifdef _WINDOWS_
-HOST_IMPORT void main(IORecHandle ioRecHandle);
+HOST_IMPORT int main(IORecHandle ioRecHandle);
 #endif
 
 static long
@@ -43,6 +44,23 @@ RegisterFunction()
 			break;
 		case 1:
 			return((long)ZIPdecode);
+			break;
+		case 2:
+			return((long)ZIPa_openArchive);
+			break;
+		case 3:
+			return((long)ZIPa_closeArchive);
+		case 4:
+			return ((long)ZIPa_ls);
+			break;
+		case 5:
+			return ((long)ZIPa_open);
+			break;
+		case 6:
+			return ((long)ZIPa_close);
+			break;
+		case 7:
+			return ((long)ZIPa_info);
 			break;
 	}
 	return NIL;
@@ -64,6 +82,8 @@ RegisterOperations(void)		// Register any operations with Igor.
 	if (result = Registertar_extract())
 		return result;
 #endif
+	if (result = RegisterZIPa_read())
+		return result;
 	// There are no more operations added by this XOP.
 	
 	return 0;
@@ -79,10 +99,21 @@ static void
 XOPEntry(void)
 {	
 	long result = 0;
+	ZIPa_closeArchiveStruct p;
 	
 	switch (GetXOPMessage()) {
 		case FUNCADDRS:
 			result = RegisterFunction();	// This tells Igor the address of our function.
+			break;
+		case NEW:
+			p.zipFileToBeClosed = -1;
+			ZIPa_closeArchive(&p);
+			
+			break;
+		case CLEANUP:
+			p.zipFileToBeClosed = -1;
+			ZIPa_closeArchive(&p);
+
 			break;
 	}
 	SetXOPResult(result);
@@ -99,13 +130,13 @@ XOPEntry(void)
 HOST_IMPORT int main(IORecHandle ioRecHandle)
 #endif	
 #ifdef _WINDOWS_
-HOST_IMPORT void main(IORecHandle ioRecHandle)
+HOST_IMPORT int main(IORecHandle ioRecHandle)
 #endif
 {	
 	int result;
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.
 	SetXOPEntry(XOPEntry);							// Set entry point for future calls.
-	
+		
 	if (result = RegisterOperations()) {
 		SetXOPResult(result);
 #ifdef _MACINTOSH_
