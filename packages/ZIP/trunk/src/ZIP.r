@@ -36,6 +36,12 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"You need to supply a file or folder",
 	//[11]
 	"Problem appending to tar file",
+	//[12]
+	"Can't locate file in archive",
+	//[13]
+	"No ZIP archive by that file handle",
+	//[14]
+	"A problem was encountered whilst trying to list files",
 	}
 };
 
@@ -69,6 +75,43 @@ resource 'XOPF' (1100) {
 		{									
 		HSTRING_TYPE,										
 		},
+		"ZIPa_openArchive",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{	
+			HSTRING_TYPE,										
+		},
+		"ZIPa_closeArchive",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+			NT_FP64,										
+		},
+		"ZIPa_ls",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		HSTRING_TYPE,						// Return value type.
+		{									
+			NT_FP64,										
+		},
+		"ZIPa_open",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+			NT_FP64,
+			HSTRING_TYPE,
+		},
+		"ZIPa_close",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+			NT_FP64,
+		},
+		"ZIPa_info",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		HSTRING_TYPE,						// Return value type.
+		{									
+			NT_FP64,
+		},		
 	}
 };
 
@@ -81,6 +124,8 @@ resource 'XOPC' (1100) {
 		"tar_append",
 		XOPOp+UtilOP+compilableOp,			// Operation's category.
 		"tar_extract",
+		XOPOp+UtilOP+compilableOp,			// Operation's category.
+		"ZIPa_read",
 		XOPOp+UtilOP+compilableOp,			// Operation's category.
 	}
 };
