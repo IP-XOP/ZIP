@@ -11,6 +11,10 @@
 #include "unzip.h"
 #include <map>
 
+#ifdef _WINDOWS_
+double roundf(double val);
+#endif
+
 using namespace std;
 /*
  ZIParchive, a C++ class to wrap all UNZIP operations that we're interested in

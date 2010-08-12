@@ -109,6 +109,6 @@ BEGIN
     "ZIPzipfiles\0",
 	utilOp | XOPOp | compilableOp,
 	"ZIPa_read\0",
-	XOPOp+UtilOP+compilableOp,
+	utilOp | XOPOp |compilableOp,
 	"\0"							// NOTE: NULL required to terminate the resource.
 END
