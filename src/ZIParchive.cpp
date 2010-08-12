@@ -133,6 +133,7 @@ int ZIParchive::isEOF(){
  */
 int ExecuteZIPa_read(ZIPa_readRuntimeParamsPtr p){
 	int err = 0;
+	int err2 = 0;
 	long fileID = 0;
 	unsigned char *buf = NULL;
 	unsigned long buflen = 0;
@@ -159,7 +160,7 @@ int ExecuteZIPa_read(ZIPa_readRuntimeParamsPtr p){
 		buflen = (long)roundf(p->numbytes);
 		 		   
 	if((openZIPfiles.find(fileID) == openZIPfiles.end())){
-		err = NO_ZIP_BY_THAT_HANDLE;
+		err2 = NO_ZIP_BY_THAT_HANDLE;
 		goto done;
 	}
 	
@@ -179,12 +180,12 @@ int ExecuteZIPa_read(ZIPa_readRuntimeParamsPtr p){
 done:
 	if(buf)
 		delete[] buf;
-	if(err || bytesRead < 0)
+	if(err || bytesRead < 0 || err2)
 		StoreStringDataUsingVarName(p->output, "", 0);
 	
 	SetOperationNumVar("V_flag", (double) bytesRead);
 	
-	if(err) 
+	if(err || err2) 
 		SetOperationNumVar("V_flag", -1);
 	return err;
 }
@@ -217,7 +218,7 @@ typedef struct unzFILEREF{
 
 int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 	int err = 0;
-		
+	int err2 = 0;
 	extern map<long, ZIParchive> openZIPfiles;
 	char zipfilename[MAX_PATH_LEN+1];
 	char temppath[MAX_PATH_LEN + 1];
@@ -242,11 +243,11 @@ int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 #endif
 	
 	if(theZipFile.ZIParchiveOpen(zipfilename)){
-		err = CANNOT_OPEN_ZIPFILE;
+		err2 = CANNOT_OPEN_ZIPFILE;
 		goto done;
 	}
 	if(unzGoToFirstFile(theZipFile.openFile)){
-		err = PROBLEM_UNZIPPING;
+		err2 = PROBLEM_UNZIPPING;
 		goto done;
 	}
 	
@@ -258,6 +259,9 @@ int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 	
 	p->result = fileRef;
 done:
+	if(err2 || err)
+		p->result = -1;
+
 	if(p->zipFileToBeOpened)
 		DisposeHandle(p->zipFileToBeOpened);
 	
@@ -266,6 +270,7 @@ done:
 
 int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 	int err = 0;
+	int err2 = 0;
 	long fileID = 0;
 	extern map<long, ZIParchive> openZIPfiles;
 	fileID = (long)roundf(p->zipFileToBeClosed);
@@ -277,7 +282,7 @@ int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 	if((openZIPfiles.find(fileID) != openZIPfiles.end()))
 		openZIPfiles.erase(fileID);
 	else
-		err = NO_ZIP_BY_THAT_HANDLE;
+		err2 = NO_ZIP_BY_THAT_HANDLE;
 
 		
 	return err;
@@ -285,6 +290,7 @@ int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 
 int ZIPa_ls(ZIPa_lsStructPtr p){
 	int err = 0;
+	int err2 = 0;
 	long fileID;
 	MemoryStruct buf;
 	
@@ -296,11 +302,11 @@ int ZIPa_ls(ZIPa_lsStructPtr p){
 	p->result = NULL;
 	
 	if((openZIPfiles.find(fileID) == openZIPfiles.end())){
-		err = NO_ZIP_BY_THAT_HANDLE;
+		err2 = NO_ZIP_BY_THAT_HANDLE;
 		goto done;
 	}
 	
-	if(err = openZIPfiles[fileID].listfiles(buf)){
+	if(err2 = openZIPfiles[fileID].listfiles(buf)){
 		err = PROBLEM_LISTING_FILES;
 		goto done;
 	}
@@ -309,17 +315,17 @@ int ZIPa_ls(ZIPa_lsStructPtr p){
 	   goto done;
 	   
 done:
-	if(err && theFileNames)
+	if((err2 || err) && theFileNames)
 		DisposeHandle(theFileNames);
 	else
 		p->result = theFileNames;
 	
 	return err;
-	
 };
 
 int ZIPa_open(ZIPa_openStructPtr p){
 	int err = 0;
+	int err2 = 0;
 	char filename_inZIP[MAX_PATH_LEN + 1];
 	long fileID;
 	
@@ -335,21 +341,21 @@ int ZIPa_open(ZIPa_openStructPtr p){
 	   goto done;
 	
 	if((openZIPfiles.find(fileID) == openZIPfiles.end())){
-		err = NO_ZIP_BY_THAT_HANDLE;
+		err2 = NO_ZIP_BY_THAT_HANDLE;
 		goto done;
 	}
 	
 	openZIPfiles[fileID].closeAFile();
 	
 	if(openZIPfiles[fileID].openAFile(filename_inZIP)){
-		err = CANT_FIND_IN_ZIP;
+		err2 = CANT_FIND_IN_ZIP;
 		goto done;
 	}
 	
 done:
 	if(p->whichFile)
 		DisposeHandle(p->whichFile);
-	p->result = err;
+	p->result = err2;
 	return err;
 };
 
