@@ -18,7 +18,7 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"ZIP requires Igor Pro 5.04 or later.",
 	//[2]
 	"One of the input strings is NULL.",
-	//[3]
+	// [3]
 	"A problem was experienced while unzipping.",
 	//[4]
 	"Path doesn't point to folder.",
