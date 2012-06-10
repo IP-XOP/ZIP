@@ -5,6 +5,7 @@
 #include <iostream>
 #include "zlib.h"
 #include <assert.h>
+#include <string>
 using namespace std;
 
 
@@ -16,7 +17,7 @@ int ZIPencode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;
-	MemoryStruct destMem;
+	string destMem;
 	unsigned long szSrc;
 	unsigned char *pChar;
 	unsigned char gzipHeader[10];
@@ -32,7 +33,7 @@ int ZIPencode(ZIPencoderStruct *p){
 	}
 
 	//zero the object that will hold the zipped string
-	destMem.reset();
+	destMem.clear();
 	
 	memset(gzipHeader, 0, 10);
 	gzipHeader[0] = 0x1f;
@@ -40,7 +41,7 @@ int ZIPencode(ZIPencoderStruct *p){
 	gzipHeader[2] = 8;
 	gzipHeader[9] = 255;
 	//write the GZIP header
-	destMem.append(gzipHeader, sizeof(char), 10);
+	destMem.append((const char*) gzipHeader, sizeof(char) * 10);
 	
 	szSrc = GetHandleSize(p->src);
 	
@@ -51,13 +52,14 @@ int ZIPencode(ZIPencoderStruct *p){
 		goto done;
 	
 	//remove the header and tail of the zlib format, in order to add in the gzip headers.
-	destMem.remove(10, sizeof(unsigned char), 2);
-	destMem.remove((destMem.getMemSize()/sizeof(unsigned char)) - 4, sizeof(unsigned char), 4);
-	destMem.append(&crc32, sizeof(unsigned long), 1);
+	destMem.erase(10, sizeof(unsigned char)* 2);
+	destMem.erase((destMem.size()/sizeof(unsigned char)) - 4, sizeof(unsigned char) * 4);
+
+	destMem.append((const char*) &crc32, sizeof(unsigned long) * 1);
 	szSrc = szSrc % (2^32);
-	destMem.append(&szSrc, sizeof(unsigned long), 1);
+	destMem.append((const char*) &szSrc, sizeof(unsigned long) * 1);
 	
-	if(err = PtrToHand((Ptr)destMem.getData(), &dest, destMem.getMemSize()))
+	if(err = PtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
 		goto done;
 	
 done:	
@@ -82,7 +84,7 @@ int ZIPdecode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;
-	MemoryStruct destMem;
+	string destMem;
 	
 	unsigned char *pChar;
 	long szSrc;
@@ -104,7 +106,7 @@ int ZIPdecode(ZIPencoderStruct *p){
 	if(err = decode_zip(destMem, pChar, szSrc))
 		goto done;
 
-	if(err = PtrToHand((Ptr)destMem.getData(), &dest, destMem.getMemSize()))
+	if(err = PtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
 		goto done;
 		
 	
@@ -129,7 +131,7 @@ done:
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 
-int encode_zip(MemoryStruct &dest, const unsigned char* src, unsigned long szSrc, unsigned long *crcRet) {
+int encode_zip(string &dest, const unsigned char* src, unsigned long szSrc, unsigned long *crcRet) {
    int ret, flush;
     unsigned have;
     z_stream strm;
@@ -178,11 +180,8 @@ int encode_zip(MemoryStruct &dest, const unsigned char* src, unsigned long szSrc
             assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
             have = CHUNK - strm.avail_out;
 			
-			try{
-				dest.append(out, sizeof(char), have);
-			} catch (bad_alloc&){
-				return NOMEM;
-			}
+			dest.append((const char*) out, sizeof(char) * have);
+
 		} while (strm.avail_out == 0);
         assert(strm.avail_in == 0);     /* all input will be used */
 
@@ -202,7 +201,7 @@ int encode_zip(MemoryStruct &dest, const unsigned char* src, unsigned long szSrc
    invalid or incomplete, Z_VERSION_ERROR if the version of zlib.h and
    the version of the library linked do not match, or Z_ERRNO if there
    is an error reading or writing the files. */
-int decode_zip(MemoryStruct &dest, const unsigned char *src, long szSrc) {
+int decode_zip(string &dest, const unsigned char *src, long szSrc) {
    int ret;
     unsigned have;
     z_stream strm;
@@ -255,11 +254,7 @@ int decode_zip(MemoryStruct &dest, const unsigned char *src, long szSrc) {
             have = CHUNK - strm.avail_out;
 			
 			//write to the destination source
-			try{
-				dest.append(out, sizeof(char), have);
-			} catch (bad_alloc&){
-				return NOMEM;
-			}
+			dest.append((const char*) out, sizeof(char) * have);
         } while (strm.avail_out == 0);
 
         /* done when inflate() says it's done */

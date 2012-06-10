@@ -2,11 +2,12 @@
 #include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "memutils.h"
+#include <string>
 
-int decode_zip(MemoryStruct &dest, const unsigned char *src, long szSrc);
-int encode_zip(MemoryStruct &dest, const unsigned char *src, unsigned long szSrc, unsigned long *crc);
+using namespace std;
+
+int decode_zip(string &dest, const unsigned char *src, long szSrc);
+int encode_zip(string &dest, const unsigned char *src, unsigned long szSrc, unsigned long *crc);
 
 /*
 in encode/decode.cpp

@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 # include <unistd.h>
 # include <utime.h>
 # include <sys/stat.h>
@@ -32,7 +32,7 @@
 #define CASESENSITIVITY (0)
 #define WRITEBUFFERSIZE (8192)
 //#define MAXFILENAME (256)
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 #define USEWIN32IOAPI
 #include "iowin32.h"
 #endif
@@ -67,7 +67,7 @@ int RegisterZIPzipfiles(void){
  dosdate : the new date at the MSDos format (4 bytes)
  tmu_date : the SAME new date at the tm_unz format */
 void change_file_date(const char* filename, uLong dosdate, tm_unz tmu_date){
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 	HANDLE hFile;
 	FILETIME ftm,ftLocal,ftCreate,ftLastAcc,ftLastWrite;
 	
@@ -79,7 +79,7 @@ void change_file_date(const char* filename, uLong dosdate, tm_unz tmu_date){
 	SetFileTime(hFile,&ftm,&ftLastAcc,&ftm);
 	CloseHandle(hFile);
 #else
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	struct utimbuf ut;
 	struct tm newdate;
 	newdate.tm_sec = tmu_date.tm_sec;
@@ -105,10 +105,10 @@ void change_file_date(const char* filename, uLong dosdate, tm_unz tmu_date){
 
 int mymkdir(const char* dirname){
     int ret=0;
-#ifdef _WINDOWS_
+#ifdef WINIGOR
     ret = mkdir(dirname);
 #else
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
     ret = mkdir (dirname, 0775);
 #endif
 #endif
@@ -158,7 +158,7 @@ int makedir (const char* newdir){
 	return 1;
 }
 
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 uLong filetime(const char* f, tm_zip* tmzip, uLong* dt){
 	/* name of file to get info on */
 	/* return value: access, modific. and creation times */
@@ -182,7 +182,7 @@ uLong filetime(const char* f, tm_zip* tmzip, uLong* dt){
 	return ret;
 }
 #else
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 uLong filetime(const char *f, tm_zip* tmzip, uLong* dt){
 	/* name of file to get info on */
 	/* return value: access, modific. and creation times */
@@ -537,7 +537,7 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 			err = SYMBOLIC_PATH_ISNT_FOLDER;
 			goto done;
 		}
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 		HFSToPosixPath(dirname, dirname, 1);
 #endif
 	}
@@ -552,7 +552,7 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 			goto done;
 		if(err = GetNativePath(temppath,zipfilename))
 			goto done;
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 		HFSToPosixPath(zipfilename, zipfilename, 0);
 #endif
 	}
@@ -698,7 +698,7 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 			goto done;
 		if(err = GetNativePath(temppath, zipfile))
 			goto done;
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 		HFSToPosixPath(zipfile, zipfile, 1);
 #endif
 	}
@@ -769,7 +769,7 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 				goto done;
 			if(err = GetNativePath(temppath,zipFileIn))
 				goto done;
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 			HFSToPosixPath(zipFileIn, zipFileIn, 1);
 #endif
 			
