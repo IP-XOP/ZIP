@@ -19,14 +19,13 @@
  ZIPa_closeArchive(id)
  */
 #include "XOPStandardHeaders.h"
-#include "memutils.h"
 #include "ZIParchive.h"
 #include "error.h"
 
 #include <map>
 #include <algorithm>
 #include <vector>
-#include <string.h>
+#include <string>
 #include <ctime>
 
 using namespace std;
@@ -80,17 +79,17 @@ long ZIParchive::read(unsigned char* buf, unsigned long buflen){
 	return err;
 }
 
-int ZIParchive::listCurrentFileInfo(MemoryStruct &buf){
+int ZIParchive::listCurrentFileInfo(string &buf){
 	return 0;
 }
 
-int ZIParchive::listfiles(MemoryStruct &buf){
+int ZIParchive::listfiles(string &buf){
 	int err = 0;
 	int status = UNZ_OK;
 	char filename_inzip[MAX_PATH_LEN + 1];
 	unz_file_info file_info;
 	
-	buf.reset();
+	buf.clear();
 	closeAFile();
 	
 	if(err = unzGoToFirstFile(openFile))
@@ -99,11 +98,11 @@ int ZIParchive::listfiles(MemoryStruct &buf){
 	for( ; status == UNZ_OK ; ){
 		if(err = unzGetCurrentFileInfo(openFile, &file_info, filename_inzip, sizeof(char) * MAX_PATH_LEN, NULL, 0, NULL, 0))
 			return err;
-		buf.append(filename_inzip, sizeof(char), strlen(filename_inzip));
-		if(!buf.getData())
+		buf.append(filename_inzip, sizeof(char) * strlen(filename_inzip));
+		if(!buf.data())
 			return 1;
-		buf.append(":", sizeof(char), 1);
-		if(!buf.getData())
+		buf.append(":", sizeof(char) * 1);
+		if(!buf.data())
 			return 1;
 		
 		status = unzGoToNextFile(openFile);
@@ -238,7 +237,7 @@ int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 		goto done;
 	if(err = GetNativePath(temppath, zipfilename))
 			goto done;
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	HFSToPosixPath(zipfilename, zipfilename, 0);
 #endif
 	
@@ -292,7 +291,7 @@ int ZIPa_ls(ZIPa_lsStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	long fileID;
-	MemoryStruct buf;
+	string buf;
 	
 	Handle theFileNames = NULL;
 	
@@ -311,7 +310,7 @@ int ZIPa_ls(ZIPa_lsStructPtr p){
 		goto done;
 	}
 	
-	if(err = PtrToHand((Ptr)buf.getData(), &theFileNames, buf.getMemSize()))
+	if(err = PtrToHand((Ptr)buf.data(), &theFileNames, buf.size()))
 	   goto done;
 	   
 done:
@@ -382,7 +381,7 @@ int ZIPa_info(ZIPa_infoStructPtr){
 	return err;
 };
 
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 double roundf(double val){
 	double retval;
 	if(val>0){

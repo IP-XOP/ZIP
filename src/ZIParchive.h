@@ -11,7 +11,7 @@
 #include "unzip.h"
 #include <map>
 
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 double roundf(double val);
 #endif
 
@@ -29,9 +29,9 @@ public:
 	
 	~ZIParchive();
 	
-	int listfiles(MemoryStruct &buf);
+	int listfiles(string &buf);
 	
-	int listCurrentFileInfo(MemoryStruct &buf);
+	int listCurrentFileInfo(string &buf);
 	
 	int seek(unsigned long pos);
 	

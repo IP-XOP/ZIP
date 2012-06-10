@@ -20,17 +20,13 @@
 #include "zlib.h"
 #include "ZIParchive.h"
 
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 #include "tar_append.h"
 #include "tar_extract.h"
 #endif
 
-#ifdef _MACINTOSH_
 HOST_IMPORT int main(IORecHandle ioRecHandle);
-#endif	
-#ifdef _WINDOWS_
-HOST_IMPORT int main(IORecHandle ioRecHandle);
-#endif
+
 
 static long
 RegisterFunction()
@@ -76,7 +72,7 @@ RegisterOperations(void)		// Register any operations with Igor.
 		return result;
 	if (result = RegisterZIPzipfiles())
 		return result;
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	if (result = Registertar_append())
 		return result;
 	if (result = Registertar_extract())
@@ -126,10 +122,10 @@ XOPEntry(void)
  main() does any necessary initialization and then sets the XOPEntry field of the
  ioRecHandle to the address to be called for future messages.
  */
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 HOST_IMPORT int main(IORecHandle ioRecHandle)
 #endif	
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 HOST_IMPORT int main(IORecHandle ioRecHandle)
 #endif
 {	
@@ -139,7 +135,7 @@ HOST_IMPORT int main(IORecHandle ioRecHandle)
 		
 	if (result = RegisterOperations()) {
 		SetXOPResult(result);
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 		return 0;
 #endif
 	}
@@ -149,7 +145,7 @@ HOST_IMPORT int main(IORecHandle ioRecHandle)
 	else
 		SetXOPResult(0L);
 	
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	return 0;
 #endif
 }
