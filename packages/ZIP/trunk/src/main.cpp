@@ -28,7 +28,7 @@
 HOST_IMPORT int main(IORecHandle ioRecHandle);
 
 
-static long
+static XOPIORecResult
 RegisterFunction()
 {
 	int funcIndex;
@@ -36,27 +36,28 @@ RegisterFunction()
 	funcIndex = GetXOPItem(0);			// Which function invoked ?
 	switch (funcIndex) {
 		case 0:							
-			return((long)ZIPencode);	// This function is called using the direct method.
+			return((XOPIORecResult)ZIPencode);	// This function is called using the direct method.
 			break;
 		case 1:
-			return((long)ZIPdecode);
+			return((XOPIORecResult)ZIPdecode);
 			break;
 		case 2:
-			return((long)ZIPa_openArchive);
+			return((XOPIORecResult)ZIPa_openArchive);
 			break;
 		case 3:
-			return((long)ZIPa_closeArchive);
+			return((XOPIORecResult)ZIPa_closeArchive);
+			break;
 		case 4:
-			return ((long)ZIPa_ls);
+			return ((XOPIORecResult)ZIPa_ls);
 			break;
 		case 5:
-			return ((long)ZIPa_open);
+			return ((XOPIORecResult)ZIPa_open);
 			break;
 		case 6:
-			return ((long)ZIPa_close);
+			return ((XOPIORecResult)ZIPa_close);
 			break;
 		case 7:
-			return ((long)ZIPa_info);
+			return ((XOPIORecResult)ZIPa_info);
 			break;
 	}
 	return NIL;
@@ -94,7 +95,7 @@ RegisterOperations(void)		// Register any operations with Igor.
 static void
 XOPEntry(void)
 {	
-	long result = 0;
+	XOPIORecResult result = 0;
 	ZIPa_closeArchiveStruct p;
 	
 	switch (GetXOPMessage()) {
@@ -122,12 +123,8 @@ XOPEntry(void)
  main() does any necessary initialization and then sets the XOPEntry field of the
  ioRecHandle to the address to be called for future messages.
  */
-#ifdef MACIGOR
+
 HOST_IMPORT int main(IORecHandle ioRecHandle)
-#endif	
-#ifdef WINIGOR
-HOST_IMPORT int main(IORecHandle ioRecHandle)
-#endif
 {	
 	int result;
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.
@@ -135,18 +132,15 @@ HOST_IMPORT int main(IORecHandle ioRecHandle)
 		
 	if (result = RegisterOperations()) {
 		SetXOPResult(result);
-#ifdef MACIGOR
-		return 0;
-#endif
+		return EXIT_FAILURE;
 	}
 	
-	if (igorVersion < 610)
+	if (igorVersion < 610){
 		SetXOPResult(REQUIRES_IGOR_610);
-	else
+		return EXIT_FAILURE;
+	} else
 		SetXOPResult(0L);
 	
-#ifdef MACIGOR
-	return 0;
-#endif
+	return EXIT_SUCCESS;
 }
 
