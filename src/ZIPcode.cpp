@@ -18,7 +18,7 @@ int ZIPencode(ZIPencoderStruct *p){
 	
 	Handle dest = NULL;
 	string destMem;
-	unsigned long szSrc;
+	BCInt szSrc;
 	unsigned char *pChar;
 	unsigned char gzipHeader[10];
 	unsigned long crc32;
@@ -87,7 +87,7 @@ int ZIPdecode(ZIPencoderStruct *p){
 	string destMem;
 	
 	unsigned char *pChar;
-	long szSrc;
+	BCInt szSrc;
 	
 	if(p->src == NULL){
 		err = NULL_STRING_HANDLE;
@@ -131,7 +131,7 @@ done:
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 
-int encode_zip(string &dest, const unsigned char* src, unsigned long szSrc, unsigned long *crcRet) {
+int encode_zip(string &dest, const unsigned char* src, BCInt szSrc, unsigned long *crcRet) {
    int ret, flush;
     unsigned have;
     z_stream strm;
@@ -151,7 +151,7 @@ int encode_zip(string &dest, const unsigned char* src, unsigned long szSrc, unsi
         return PROBLEM_UNZIPPING;
 		
 	//size of zip source
-	size_t szSrcRead = 0;
+	BCInt szSrcRead = 0;
 
     /* compress until end of file */
     do {
@@ -201,7 +201,7 @@ int encode_zip(string &dest, const unsigned char* src, unsigned long szSrc, unsi
    invalid or incomplete, Z_VERSION_ERROR if the version of zlib.h and
    the version of the library linked do not match, or Z_ERRNO if there
    is an error reading or writing the files. */
-int decode_zip(string &dest, const unsigned char *src, long szSrc) {
+int decode_zip(string &dest, const unsigned char *src, BCInt szSrc) {
    int ret;
     unsigned have;
     z_stream strm;
@@ -219,7 +219,7 @@ int decode_zip(string &dest, const unsigned char *src, long szSrc) {
         return PROBLEM_UNZIPPING;
 
 	//size of zip source
-	size_t szSrcRead = 0;
+	BCInt szSrcRead = 0;
 	
     /* decompress until deflate stream ends or end of file */
     do {
