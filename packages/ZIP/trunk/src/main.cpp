@@ -33,7 +33,7 @@ RegisterFunction()
 {
 	int funcIndex;
 	
-	funcIndex = GetXOPItem(0);			// Which function invoked ?
+	funcIndex = (int) GetXOPItem(0);			// Which function invoked ?
 	switch (funcIndex) {
 		case 0:							
 			return((XOPIORecResult)ZIPencode);	// This function is called using the direct method.
