@@ -15,6 +15,7 @@ in encode/decode.cpp
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct ZIPencoderStruct {
 	Handle src;
+	UserFunctionThreadInfoPtr tp;
 	Handle dest;			//the string containing the content
 }ZIPencoderStruct, *ZIPencoderStructPtr;
 #pragma pack()
