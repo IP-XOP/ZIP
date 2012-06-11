@@ -140,8 +140,8 @@ HOST_IMPORT int main(IORecHandle ioRecHandle)
 #endif
 	}
 	
-	if (igorVersion < 504)
-		SetXOPResult(REQUIRES_IGOR_504);
+	if (igorVersion < 610)
+		SetXOPResult(REQUIRES_IGOR_610);
 	else
 		SetXOPResult(0L);
 	

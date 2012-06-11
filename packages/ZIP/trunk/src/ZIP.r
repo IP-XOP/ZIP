@@ -15,7 +15,7 @@ resource 'vers' (2) {						/* Igor version info */
 resource 'STR#' (1100) {					/* custom error messages */
 	{
 	//[1]
-	"ZIP requires Igor Pro 5.04 or later.",
+	"ZIP requires Igor Pro 6.10 or later.",
 	//[2]
 	"One of the input strings is NULL.",
 	// [3]
@@ -64,13 +64,13 @@ resource 'XOPI' (1100) {
 resource 'XOPF' (1100) {
 	{
 		"ZIPencode",					// Function name.
-		F_EXP | F_EXTERNAL,				// Function category,
+		F_EXP | F_EXTERNAL | F_THREADSAFE,				// Function category,
 		HSTRING_TYPE,						// Return value type.
 		{									
 		HSTRING_TYPE,					
 		},
 		"ZIPdecode",					// Function name.
-		F_EXP | F_EXTERNAL,				// Function category,
+		F_EXP | F_EXTERNAL | F_THREADSAFE,				// Function category,
 		HSTRING_TYPE,						// Return value type.
 		{									
 		HSTRING_TYPE,										
