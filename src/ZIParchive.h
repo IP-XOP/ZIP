@@ -114,10 +114,10 @@ typedef struct ZIPa_readRuntimeParams* ZIPa_readRuntimeParamsPtr;
 
 int ExecuteZIPa_read(ZIPa_readRuntimeParamsPtr p);
 int RegisterZIPa_read(void);
-int ZIPa_openArchive(ZIPa_openArchiveStructPtr);
-int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr);
-int ZIPa_ls(ZIPa_lsStructPtr);
-int ZIPa_open(ZIPa_openStructPtr);
-int ZIPa_close(ZIPa_closeStructPtr);
-int ZIPa_info(ZIPa_infoStructPtr);
+extern "C" int ZIPa_openArchive(ZIPa_openArchiveStructPtr);
+extern "C" int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr);
+extern "C" int ZIPa_ls(ZIPa_lsStructPtr);
+extern "C" int ZIPa_open(ZIPa_openStructPtr);
+extern "C" int ZIPa_close(ZIPa_closeStructPtr);
+extern "C" int ZIPa_info(ZIPa_infoStructPtr);
 #pragma pack()

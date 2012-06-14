@@ -20,5 +20,5 @@ typedef struct ZIPencoderStruct {
 }ZIPencoderStruct, *ZIPencoderStructPtr;
 #pragma pack()
 
-int ZIPencode (ZIPencoderStructPtr p);
-int ZIPdecode (ZIPencoderStructPtr p);
+extern "C" int ZIPencode (ZIPencoderStructPtr p);
+extern "C" int ZIPdecode (ZIPencoderStructPtr p);

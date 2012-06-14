@@ -92,7 +92,7 @@ RegisterOperations(void)		// Register any operations with Igor.
  This is the entry point from the host application to the XOP for all
  messages after the INIT message.
  */
-static void
+extern "C" void
 XOPEntry(void)
 {	
 	XOPIORecResult result = 0;
