@@ -13,7 +13,7 @@ using namespace std;
 #define CHUNK 16384
 
 
-int ZIPencode(ZIPencoderStruct *p){
+extern "C" int ZIPencode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;
@@ -80,7 +80,7 @@ done:
 
 
 
-int ZIPdecode(ZIPencoderStruct *p){
+extern "C" int ZIPdecode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;

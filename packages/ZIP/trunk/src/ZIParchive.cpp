@@ -215,7 +215,7 @@ typedef struct unzFILEREF{
 		voidpf filestream;        /* io structore of the zipfile */
 }unzFILEREF;
 
-int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
+extern "C" int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	extern map<long, ZIParchive> openZIPfiles;
@@ -267,7 +267,7 @@ done:
 	return err;
 };
 
-int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
+extern "C" int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	long fileID = 0;
@@ -287,7 +287,7 @@ int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 	return err;
 };
 
-int ZIPa_ls(ZIPa_lsStructPtr p){
+extern "C" int ZIPa_ls(ZIPa_lsStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	long fileID;
@@ -322,7 +322,7 @@ done:
 	return err;
 };
 
-int ZIPa_open(ZIPa_openStructPtr p){
+extern "C" int ZIPa_open(ZIPa_openStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	char filename_inZIP[MAX_PATH_LEN + 1];
