@@ -9,7 +9,7 @@
 1100 STR#							// Custom error messages.
 BEGIN
 	//[1]
-	"requires Igor Pro 6.10 or later.\0",
+	"requires Igor Pro 7.00 or later.\0",
 	//[2]
 	"One of the input strings is NULL.\0",
 	//[3]
