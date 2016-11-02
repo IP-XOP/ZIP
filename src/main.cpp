@@ -25,7 +25,7 @@
 #include "tar_extract.h"
 #endif
 
-HOST_IMPORT int main(IORecHandle ioRecHandle);
+HOST_IMPORT int XOPMain(IORecHandle ioRecHandle);
 
 
 static XOPIORecResult
@@ -124,7 +124,7 @@ XOPEntry(void)
  ioRecHandle to the address to be called for future messages.
  */
 
-HOST_IMPORT int main(IORecHandle ioRecHandle)
+HOST_IMPORT int XOPMain(IORecHandle ioRecHandle)
 {	
 	int result;
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.

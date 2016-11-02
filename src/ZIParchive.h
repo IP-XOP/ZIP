@@ -16,6 +16,7 @@ double roundf(double val);
 #endif
 
 using namespace std;
+
 /*
  ZIParchive, a C++ class to wrap all UNZIP operations that we're interested in
  */
@@ -51,6 +52,9 @@ public:
 private:
 };
 
+
+// global variable to store open zip files
+extern std::map<long, ZIParchive> openZIPfiles;
 
 
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.

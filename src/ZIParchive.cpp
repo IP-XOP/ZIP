@@ -31,6 +31,7 @@
 using namespace std;
 std::map<long, ZIParchive> openZIPfiles;
 
+
 /*
 ZIParchive, a C++ class to wrap all UNZIP operations that we're interested in
  */
@@ -137,7 +138,6 @@ int ExecuteZIPa_read(ZIPa_readRuntimeParamsPtr p){
 	unsigned char *buf = NULL;
 	unsigned long buflen = 0;
 	long bytesRead = -1;
-	extern map<long, ZIParchive> openZIPfiles;
 	
 	// Main parameters.
 	if (p->zipFileToDealEncountered) 
@@ -213,13 +213,12 @@ I want to store references to the open unzFile in a map, need a file number for 
 typedef struct unzFILEREF{
 		zlib_filefunc_def z_filefunc;
 		voidpf filestream;        /* io structore of the zipfile */
-}unzFILEREF;
+} unzFILEREF;
 
 extern "C" int ZIPa_openArchive(ZIPa_openArchiveStructPtr p){
 	int err = 0;
 	int err2 = 0;
-	extern map<long, ZIParchive> openZIPfiles;
-	char zipfilename[MAX_PATH_LEN+1];
+	char zipfilename[MAX_PATH_LEN + 1];
 	char temppath[MAX_PATH_LEN + 1];
 	long fileRef;
 	ZIParchive theZipFile;
@@ -271,7 +270,6 @@ extern "C" int ZIPa_closeArchive(ZIPa_closeArchiveStructPtr p){
 	int err = 0;
 	int err2 = 0;
 	long fileID = 0;
-	extern map<long, ZIParchive> openZIPfiles;
 	fileID = (long)roundf(p->zipFileToBeClosed);
 	
 	if(fileID == -1){
@@ -295,7 +293,6 @@ extern "C" int ZIPa_ls(ZIPa_lsStructPtr p){
 	
 	Handle theFileNames = NULL;
 	
-	extern map<long, ZIParchive> openZIPfiles;
 	fileID = (long)roundf(p->zipFileToList);
 			
 	p->result = NULL;
@@ -328,7 +325,6 @@ extern "C" int ZIPa_open(ZIPa_openStructPtr p){
 	char filename_inZIP[MAX_PATH_LEN + 1];
 	long fileID;
 	
-	extern map<long, ZIParchive> openZIPfiles;
 	fileID = (long)roundf(p->zipFileToDeal);
 	
 	if(!p->whichFile){
@@ -362,7 +358,6 @@ int ZIPa_close(ZIPa_closeStructPtr p){
 	int err = 0;
 	long fileID;
 	
-	extern map<long, ZIParchive> openZIPfiles;
 	fileID = (long)roundf(p->zipFileToDeal);
 		
 	if((openZIPfiles.find(fileID) == openZIPfiles.end())){
