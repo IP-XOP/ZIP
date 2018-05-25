@@ -261,7 +261,7 @@ done:
 		p->result = -1;
 
 	if(p->zipFileToBeOpened)
-		DisposeHandle(p->zipFileToBeOpened);
+		WMDisposeHandle(p->zipFileToBeOpened);
 	
 	return err;
 };
@@ -307,12 +307,12 @@ extern "C" int ZIPa_ls(ZIPa_lsStructPtr p){
 		goto done;
 	}
 	
-	if(err = PtrToHand((Ptr)buf.data(), &theFileNames, buf.size()))
+	if(err = WMPtrToHand((Ptr)buf.data(), &theFileNames, buf.size()))
 	   goto done;
 	   
 done:
 	if((err2 || err) && theFileNames)
-		DisposeHandle(theFileNames);
+		WMDisposeHandle(theFileNames);
 	else
 		p->result = theFileNames;
 	
@@ -349,7 +349,7 @@ extern "C" int ZIPa_open(ZIPa_openStructPtr p){
 	
 done:
 	if(p->whichFile)
-		DisposeHandle(p->whichFile);
+		WMDisposeHandle(p->whichFile);
 	p->result = err2;
 	return err;
 };

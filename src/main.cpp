@@ -20,11 +20,6 @@
 #include "zlib.h"
 #include "ZIParchive.h"
 
-#ifdef MACIGOR
-#include "tar_append.h"
-#include "tar_extract.h"
-#endif
-
 HOST_IMPORT int XOPMain(IORecHandle ioRecHandle);
 
 
@@ -73,12 +68,6 @@ RegisterOperations(void)		// Register any operations with Igor.
 		return result;
 	if (result = RegisterZIPzipfiles())
 		return result;
-#ifdef MACIGOR
-	if (result = Registertar_append())
-		return result;
-	if (result = Registertar_extract())
-		return result;
-#endif
 	if (result = RegisterZIPa_read())
 		return result;
 	// There are no more operations added by this XOP.
@@ -126,7 +115,7 @@ XOPEntry(void)
 
 HOST_IMPORT int XOPMain(IORecHandle ioRecHandle)
 {	
-	int result;
+	long result;
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.
 	SetXOPEntry(XOPEntry);							// Set entry point for future calls.
 		
@@ -135,8 +124,8 @@ HOST_IMPORT int XOPMain(IORecHandle ioRecHandle)
 		return EXIT_FAILURE;
 	}
 	
-	if (igorVersion < 610){
-		SetXOPResult(REQUIRES_IGOR_610);
+	if (igorVersion < 700){
+		SetXOPResult(IGOR_OBSOLETE);
 		return EXIT_FAILURE;
 	} else
 		SetXOPResult(0L);

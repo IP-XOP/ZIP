@@ -38,26 +38,20 @@
 #endif
 
 int RegisterZIPfile(void){
-	char* cmdTemplate;
-	char* runtimeNumVarList;
-	char* runtimeStrVarList;
+	const char* cmdTemplate = "ZIPfile/O/X/E/PASS=string:passwd string:path, string:file";
+	const char* runtimeNumVarList = "V_Flag";
+	const char* runtimeStrVarList = "S_unzippedfiles";
 	
 	// NOTE: If you change this template, you must change the ZIPfileRuntimeParams structure as well.
-	cmdTemplate = "ZIPfile/O/X/E/PASS=string:passwd string:path, string:file";
-	runtimeNumVarList = "V_flag";
-	runtimeStrVarList = "S_unzippedfiles";
 	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPfileRuntimeParams), (void*)ExecuteZIPfile, 0);
 }
 
 int RegisterZIPzipfiles(void){
-	char* cmdTemplate;
-	char* runtimeNumVarList;
-	char* runtimeStrVarList;
+	const char* cmdTemplate = "ZIPzipfiles/O/A/PASS=string:passwd string:zipfile, string[100]:files";
+	const char* runtimeNumVarList = "V_Flag";
+	const char* runtimeStrVarList = "";
 	
 	// NOTE: If you change this template, you must change the ZIPzipfilesRuntimeParams structure as well.
-	cmdTemplate = "ZIPzipfiles/O/A/PASS=string:passwd string:zipfile, string[100]:files";
-	runtimeNumVarList = "V_flag";
-	runtimeStrVarList = "";
 	return RegisterOperation(cmdTemplate, runtimeNumVarList, runtimeStrVarList, sizeof(ZIPzipfilesRuntimeParams), (void*)ExecuteZIPzipfiles, 0);
 }
 
@@ -196,7 +190,7 @@ uLong filetime(const char *f, tm_zip* tmzip, uLong* dt){
 	if (strcmp(f,"-")!=0)
 	{
 		char name[MAX_PATH_LEN+1];
-		int len = strlen(f);
+		size_t len = strlen(f);
 		if (len > MAX_PATH_LEN)
 			len = MAX_PATH_LEN;
 		
@@ -445,9 +439,9 @@ int do_extract(unzFile uf, int opt_extract_without_path, int opt_overwrite, cons
 		
 		err = unzGetCurrentFileInfo(uf,&file_info,filename_inzip,sizeof(filename_inzip),NULL,0,NULL,0);
 		
-		if(err = PtrAndHand((Ptr)&filename_inzip, fileNames, sizeof(char)*strlen(filename_inzip)))
+		if(err = WMPtrAndHand((Ptr)&filename_inzip, fileNames, sizeof(char)*strlen(filename_inzip)))
 			return err;
-		if(err = PtrAndHand((Ptr)sep, fileNames, sizeof(char)))
+		if(err = WMPtrAndHand((Ptr)sep, fileNames, sizeof(char)))
 			return err;
 		
         if ((i+1)<gi.number_entry)
@@ -485,7 +479,7 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 	memset(dirname, 0, MAX_PATH_LEN+1);
 	memset(zipfilename, 0, MAX_PATH_LEN+1);
 	
-	fileNames = NewHandle(0);
+	fileNames = WMNewHandle(0);
 	if(fileNames == NULL){
 		err = NOMEM;
 		goto done;
@@ -510,13 +504,13 @@ ExecuteZIPfile(ZIPfileRuntimeParamsPtr p)
 			err = NULL_STRING_HANDLE;
 			goto done;
 		}
-		passwdFmIgor = (char*)malloc( sizeof(char) * GetHandleSize(p->PASSFlag_passwd) + 1);
+		passwdFmIgor = (char*)malloc( sizeof(char) * WMGetHandleSize(p->PASSFlag_passwd) + 1);
 		if(passwdFmIgor == NULL){
 			err = NOMEM;
 			goto done;
 		}
-		memset(passwdFmIgor, 0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd) + 1);
-		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, GetHandleSize(p->PASSFlag_passwd)))
+		memset(passwdFmIgor, 0, sizeof(char) * WMGetHandleSize(p->PASSFlag_passwd) + 1);
+		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, WMGetHandleSize(p->PASSFlag_passwd)))
 			goto done;
 		password = passwdFmIgor;
 	}
@@ -615,18 +609,18 @@ done:
 	
 	if(!err2){
 		char* fnames = NULL;
-		fnames = (char*)malloc(sizeof(char)*GetHandleSize(fileNames)+1);
+		fnames = (char*)malloc(sizeof(char) * WMGetHandleSize(fileNames)+1);
 		if(fnames==NULL)
 			err = NOMEM;
-		memset(fnames, 0, sizeof(char)*GetHandleSize(fileNames) + 1);
-		err = GetCStringFromHandle(fileNames, fnames, GetHandleSize(fileNames));
+		memset(fnames, 0, sizeof(char) * WMGetHandleSize(fileNames) + 1);
+		err = GetCStringFromHandle(fileNames, fnames, WMGetHandleSize(fileNames));
 		if(!err)
 			err = SetOperationStrVar("S_unzippedfiles", fnames);
 		if(fnames)
 			free(fnames);
 	}
 	if(fileNames)
-		DisposeHandle(fileNames);
+		WMDisposeHandle(fileNames);
 	
 	return err;
 	
@@ -674,13 +668,13 @@ ExecuteZIPzipfiles(ZIPzipfilesRuntimeParamsPtr p)
 			err = NULL_STRING_HANDLE;
 			goto done;
 		}
-		passwdFmIgor = (char*)malloc(sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
+		passwdFmIgor = (char*)malloc(sizeof(char) * WMGetHandleSize(p->PASSFlag_passwd)+1);
 		if(passwdFmIgor == NULL){
 			err = NOMEM;
 			goto done;
 		}
-		memset(passwdFmIgor,0, sizeof(char)*GetHandleSize(p->PASSFlag_passwd)+1);
-		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, GetHandleSize(p->PASSFlag_passwd)))
+		memset(passwdFmIgor,0, sizeof(char) * WMGetHandleSize(p->PASSFlag_passwd)+1);
+		if(err = GetCStringFromHandle(p->PASSFlag_passwd, passwdFmIgor, WMGetHandleSize(p->PASSFlag_passwd)))
 			goto done;
 		password = passwdFmIgor;
 	}

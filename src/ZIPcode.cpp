@@ -23,7 +23,7 @@ extern "C" int ZIPencode(ZIPencoderStruct *p){
 	unsigned char gzipHeader[10];
 	unsigned long crc32;
 	
-	dest = NewHandle(0);
+	dest = WMNewHandle(0);
 	if(dest == NULL)
 		return NOMEM;
 	
@@ -43,7 +43,7 @@ extern "C" int ZIPencode(ZIPencoderStruct *p){
 	//write the GZIP header
 	destMem.append((const char*) gzipHeader, sizeof(char) * 10);
 	
-	szSrc = GetHandleSize(p->src);
+	szSrc = WMGetHandleSize(p->src);
 	
 	//get a pointer to the start of the data you want to zip.
 	pChar = (unsigned char*)*(p->src);
@@ -59,17 +59,17 @@ extern "C" int ZIPencode(ZIPencoderStruct *p){
 	szSrc = szSrc % (2^32);
 	destMem.append((const char*) &szSrc, sizeof(unsigned long) * 1);
 	
-	if(err = PtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
+	if(err = WMPtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
 		goto done;
 	
 done:	
 	if(p->src)
-		DisposeHandle(p->src);
+		WMDisposeHandle(p->src);
 	
 	p->dest = NULL;	// Init to NULL
 	if (err != 0) {
 		if (dest != NULL)
-			DisposeHandle(dest);
+			WMDisposeHandle(dest);
 		return err;
 	}
 	p->dest = dest;
@@ -94,8 +94,8 @@ extern "C" int ZIPdecode(ZIPencoderStruct *p){
 		p->dest = NULL;
 		goto done;
 	}
-	szSrc = GetHandleSize(p->src);
-	dest = NewHandle(0);
+	szSrc = WMGetHandleSize(p->src);
+	dest = WMNewHandle(0);
 	if(dest == NULL)
 		return NOMEM;
 		
@@ -106,18 +106,18 @@ extern "C" int ZIPdecode(ZIPencoderStruct *p){
 	if(err = decode_zip(destMem, pChar, szSrc))
 		goto done;
 
-	if(err = PtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
+	if(err = WMPtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
 		goto done;
 		
 	
 done:		
 	if(p->src)
-		DisposeHandle(p->src);
+		WMDisposeHandle(p->src);
 
 	p->dest = NULL;	// Init to NULL
 	if (err != 0) {
 		if (dest != NULL)
-			DisposeHandle(dest);
+			WMDisposeHandle(dest);
 		return err;
 	}
 	p->dest = dest;	
