@@ -23,10 +23,6 @@ extern "C" int ZIPencode(ZIPencoderStruct *p){
 	unsigned char gzipHeader[10];
 	unsigned long crc32;
 	
-	dest = WMNewHandle(0);
-	if(dest == NULL)
-		return NOMEM;
-	
 	if(p->src == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
@@ -95,9 +91,6 @@ extern "C" int ZIPdecode(ZIPencoderStruct *p){
 		goto done;
 	}
 	szSrc = WMGetHandleSize(p->src);
-	dest = WMNewHandle(0);
-	if(dest == NULL)
-		return NOMEM;
 		
 	//copy over the data by locking and unlocking the handle
 	//wasteful of memory
