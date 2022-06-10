@@ -10,6 +10,7 @@
 #include "XOPStandardHeaders.h"
 #include "unzip.h"
 #include <map>
+#include <string>
 
 #ifdef WINIGOR
 double roundf(double val);
