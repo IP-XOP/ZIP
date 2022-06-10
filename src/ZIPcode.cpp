@@ -104,8 +104,7 @@ extern "C" int ZIPdecode(ZIPencoderStruct *p){
 		
 	
 done:		
-	if(p->src)
-		WMDisposeHandle(p->src);
+    WMDisposeHandle(p->src);
 
 	p->dest = NULL;	// Init to NULL
 	if (err != 0) {
