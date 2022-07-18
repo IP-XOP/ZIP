@@ -6,8 +6,8 @@
 
 using namespace std;
 
-int decode_zip(string &dest, const unsigned char *src, BCInt szSrc);
-int encode_zip(string &dest, const unsigned char *src, BCInt szSrc, unsigned long *crc);
+int decode_zip(string &input, string &output);
+int encode_zip(string &input, string &output);
 
 /*
 in encode/decode.cpp

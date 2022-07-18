@@ -9,7 +9,7 @@
 1100 STR#							// Custom error messages.
 BEGIN
 	//[1]
-	"requires Igor Pro 7.00 or later.\0",
+	"requires Igor Pro 9.00 or later.\0",
 	//[2]
 	"One of the input strings is NULL.\0",
 	//[3]
@@ -36,6 +36,8 @@ BEGIN
 	"No ZIP archive by that file handle\0",
 	//[14]
 	"A problem was encountered whilst trying to list files\0",
+    //[15]
+	"Problem whilst compressing/decompressing.\0",
 	0,								// NOTE: 0 required to terminate the resource.
 END
 

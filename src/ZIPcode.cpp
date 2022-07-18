@@ -17,45 +17,30 @@ extern "C" int ZIPencode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;
-	string destMem;
 	BCInt szSrc;
 	unsigned char *pChar;
-	unsigned char gzipHeader[10];
-	unsigned long crc32;
-	
+    string input;
+    string output;
+
 	if(p->src == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 
 	//zero the object that will hold the zipped string
-	destMem.clear();
-	
-	memset(gzipHeader, 0, 10);
-	gzipHeader[0] = 0x1f;
-	gzipHeader[1] = 0x8b;
-	gzipHeader[2] = 8;
-	gzipHeader[9] = 255;
-	//write the GZIP header
-	destMem.append((const char*) gzipHeader, sizeof(char) * 10);
+	output.clear();
 	
 	szSrc = WMGetHandleSize(p->src);
-	
+    input.resize(szSrc); // make sure we have enough space!
+    
 	//get a pointer to the start of the data you want to zip.
 	pChar = (unsigned char*)*(p->src);
-	
-	if(err = encode_zip(destMem, pChar, szSrc, &crc32))
+    memcpy(&input[0], pChar, szSrc);
+
+    if(err = encode_zip(input, output))
 		goto done;
 	
-	//remove the header and tail of the zlib format, in order to add in the gzip headers.
-	destMem.erase(10, sizeof(unsigned char)* 2);
-	destMem.erase((destMem.size()/sizeof(unsigned char)) - 4, sizeof(unsigned char) * 4);
-
-	destMem.append((const char*) &crc32, sizeof(unsigned long) * 1);
-	szSrc = szSrc % (2^32);
-	destMem.append((const char*) &szSrc, sizeof(unsigned long) * 1);
-	
-	if(err = WMPtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
+	if(err = WMPtrToHand((Ptr)output.data(), &dest, output.size()))
 		goto done;
 	
 done:	
@@ -74,13 +59,14 @@ done:
 }
 
 
-
-
 extern "C" int ZIPdecode(ZIPencoderStruct *p){
 	int err = 0;
 	
 	Handle dest = NULL;
-	string destMem;
+    string input;
+	string output;
+    
+    output.clear();
 	
 	unsigned char *pChar;
 	BCInt szSrc;
@@ -91,15 +77,15 @@ extern "C" int ZIPdecode(ZIPencoderStruct *p){
 		goto done;
 	}
 	szSrc = WMGetHandleSize(p->src);
-		
-	//copy over the data by locking and unlocking the handle
-	//wasteful of memory
-	pChar = (unsigned char*)*(p->src);	
+    input.resize(szSrc); // make sure we have enough space!
 
-	if(err = decode_zip(destMem, pChar, szSrc))
+    pChar = (unsigned char*)*(p->src);
+    memcpy(&input[0], pChar, szSrc);
+
+	if(err = decode_zip(input, output))
 		goto done;
 
-	if(err = WMPtrToHand((Ptr)destMem.data(), &dest, destMem.size()))
+	if(err = WMPtrToHand((Ptr)output.data(), &dest, output.size()))
 		goto done;
 		
 	
@@ -123,66 +109,46 @@ done:
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 
-int encode_zip(string &dest, const unsigned char* src, BCInt szSrc, unsigned long *crcRet) {
-   int ret, flush;
-    unsigned have;
-    z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
-	unsigned long crc = crc32(0L, Z_NULL, 0);
-	*crcRet = 0;
-
-	 
+int encode_zip(string &input, string &output) {
+    int ret;
+    
+    z_stream zs;
+    
     /* allocate deflate state */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    ret = deflateInit2(&strm, Z_DEFAULT_COMPRESSION,Z_DEFLATED,15,8,Z_DEFAULT_STRATEGY);
-	
+    zs.zalloc = Z_NULL;
+    zs.zfree = Z_NULL;
+    zs.opaque = Z_NULL;
+    
+    // default value of 15 for window size, add 16 to write a simple
+    // gzip header and trailer around the compressed data instead of a zlib wrapper
+    ret = deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 + 16, 8, Z_DEFAULT_STRATEGY);
     if (ret != Z_OK)
-        return PROBLEM_UNZIPPING;
-		
-	//size of zip source
-	BCInt szSrcRead = 0;
+        return PROBLEM_ZIPPING;
 
-    /* compress until end of file */
+    zs.next_in = (Bytef*)input.data();
+    zs.avail_in = input.size();           // set the z_stream's input
+
+    char outbuffer[32768];
+
+    // retrieve the compressed bytes blockwise
     do {
-		if((szSrc - szSrcRead) > CHUNK){
-			memcpy(in, src + szSrcRead, sizeof(char) * CHUNK);
-			strm.avail_in = CHUNK;
-			szSrcRead += strm.avail_in;
-		} else {
-			memcpy(in, src + szSrcRead, sizeof(char)*(szSrc - szSrcRead));
-			strm.avail_in = szSrc - szSrcRead;
-			szSrcRead += strm.avail_in;
-		}
-		
-		crc = crc32(crc, in, strm.avail_in);
-		*crcRet = crc;
-		
-        flush = (szSrcRead == szSrc) ? Z_FINISH : Z_NO_FLUSH;
-        strm.next_in = in;
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
 
-        /* run deflate() on input until output buffer not full, finish
-           compression if all of source has been read in */
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = out;
-            ret = deflate(&strm, flush);    /* no bad return value */
-            assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            have = CHUNK - strm.avail_out;
-			
-			dest.append((const char*) out, sizeof(char) * have);
+        ret = deflate(&zs, Z_FINISH);
 
-		} while (strm.avail_out == 0);
-        assert(strm.avail_in == 0);     /* all input will be used */
+        if (output.size() < zs.total_out) {
+            // append the block to the output string
+            output.append(outbuffer,
+                        zs.total_out - output.size());
+        }
+    } while (ret == Z_OK);
 
-        /* done when last data in file processed */
-    } while (flush != Z_FINISH);
-    assert(ret == Z_STREAM_END);        /* stream will be complete */
-
-    /* clean up and return */
-    (void)deflateEnd(&strm);
+    deflateEnd(&zs);
+    
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        return PROBLEM_ZIPPING;
+    }
     return 0;
 }
 
@@ -193,68 +159,41 @@ int encode_zip(string &dest, const unsigned char* src, BCInt szSrc, unsigned lon
    invalid or incomplete, Z_VERSION_ERROR if the version of zlib.h and
    the version of the library linked do not match, or Z_ERRNO if there
    is an error reading or writing the files. */
-int decode_zip(string &dest, const unsigned char *src, BCInt szSrc) {
-   int ret;
-    unsigned have;
-    z_stream strm;
-    unsigned char in[CHUNK];
-    unsigned char out[CHUNK];
+int decode_zip(string &input, string &output) {
+    int ret;
+    
+    z_stream zs;                        // z_stream is zlib's control structure
+    memset(&zs, 0, sizeof(zs));
 
-    /* allocate inflate state */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-    ret = inflateInit2(&strm,15+32);
-    if (ret != Z_OK)
+    // Add 32 to windowBits to enable zlib and gzip decoding with automatic header
+    // detection
+    if (inflateInit2(&zs, 32) != Z_OK)
         return PROBLEM_UNZIPPING;
 
-	//size of zip source
-	BCInt szSrcRead = 0;
-	
-    /* decompress until deflate stream ends or end of file */
+    zs.next_in = (Bytef*)input.data();
+    zs.avail_in = input.size();
+
+    char outbuffer[32768];
+
+    // get the decompressed bytes blockwise using repeated calls to inflate
     do {
-		if((szSrc - szSrcRead) > CHUNK){
-			memcpy(in, src + szSrcRead, sizeof(char) * CHUNK);
-			strm.avail_in = CHUNK;
-			szSrcRead += strm.avail_in;
-		} else {
-			memcpy(in, src + szSrcRead, sizeof(char)*(szSrc - szSrcRead));
-			strm.avail_in = szSrc - szSrcRead;
-			szSrcRead += strm.avail_in;
-		}
-		
-        if (strm.avail_in == 0)
-            break;
-        strm.next_in = in;
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
 
-        /* run inflate() on input until output buffer not full */
-        do {
-            strm.avail_out = CHUNK;
-            strm.next_out = out;
-            ret = inflate(&strm, Z_NO_FLUSH);
-            assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            switch (ret) {
-            case Z_NEED_DICT:
-                ret = Z_DATA_ERROR;     /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-                (void)inflateEnd(&strm);
-                return PROBLEM_UNZIPPING;
-            }
-            have = CHUNK - strm.avail_out;
-			
-			//write to the destination source
-			dest.append((const char*) out, sizeof(char) * have);
-        } while (strm.avail_out == 0);
+        ret = inflate(&zs, 0);
 
-        /* done when inflate() says it's done */
-    } while (ret != Z_STREAM_END);
+        if (output.size() < zs.total_out) {
+            output.append(outbuffer,
+                             zs.total_out - output.size());
+        }
 
-    /* clean up and return */
-    (void)inflateEnd(&strm);
-//    return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-	return ret == Z_STREAM_END ? 0 : PROBLEM_UNZIPPING;
-return 0;
+    } while (ret == Z_OK);
+
+    inflateEnd(&zs);
+
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        return PROBLEM_UNZIPPING;
+    }
+
+    return 0;
 }

@@ -42,6 +42,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"No ZIP archive by that file handle",
 	//[14]
 	"A problem was encountered whilst trying to list files",
+    //[15]
+    "A problem was experienced with zipping",
 	}
 };
 
