@@ -258,7 +258,3 @@ int decode_zip(string &dest, const unsigned char *src, BCInt szSrc) {
 	return ret == Z_STREAM_END ? 0 : PROBLEM_UNZIPPING;
 return 0;
 }
-
-
-
-
