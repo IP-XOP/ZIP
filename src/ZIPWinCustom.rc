@@ -49,13 +49,13 @@ BEGIN
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
-1100 XOPI							// XOPI - Describes general XOP properties to IGOR. 
+1100 XOPI							// XOPI - Describes general XOP properties to IGOR.
 BEGIN
 	XOP_VERSION,					// Version number of host XOP system.
-	DEV_SYS_CODE,					// Code for development system used to make XOP
-	0,								// True if XOP requires hierarchical menus
-	0,								// True if XOP requires math coprocessor
-	0								// True if XOP requires MMU
+	DEV_SYS_CODE,					// Code for development system used to make XOP.
+	XOP_FEATURE_FLAGS,				// Tells Igor about XOP features
+	XOPI_RESERVED,					// Reserved - must be zero.
+	XOP_TOOLKIT_VERSION				// XOP Toolkit version.
 END
 
 1100 XOPF							// Describes functions added by XOP to IGOR.

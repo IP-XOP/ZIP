@@ -58,8 +58,8 @@ resource 'STR#' (1101) {					// Misc strings for XOP.
 resource 'XOPI' (1100) {
 	XOP_VERSION,							// XOP protocol version.
 	DEV_SYS_CODE,							// Development system information.
-	0,										// Obsolete - set to zero.
-	0,										// Obsolete - set to zero.
+	XOP_FEATURE_FLAGS,						// Obsolete - set to zero.
+	XOPI_RESERVED,							// Obsolete - set to zero.
 	XOP_TOOLKIT_VERSION,					// XOP Toolkit version.
 };
 

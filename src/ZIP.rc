@@ -57,7 +57,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright 2007\0"
             VALUE "OriginalFilename", "ZIP.xop\0"
             VALUE "ProductName", "Igor Pro ZIP\0"
-            VALUE "ProductVersion", "7, 0, 0, 0\0"
+            VALUE "ProductVersion", "8, 0, 0, 0\0"
         END
     END
     BLOCK "VarFileInfo"
